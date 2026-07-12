@@ -49,31 +49,19 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
 
-        <!-- 4대 핵심 매크로 지표 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="macro-grid-container">
+        <!-- 3대 핵심 매크로 지표 (각각 실데이터 차트 포함) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="macro-grid-container">
             <!-- JS Dynamic -->
         </div>
 
-        <!-- KOSPI 추이 차트 + 10대 ETF -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
-                <span class="text-xs font-bold text-[#5f5340] uppercase tracking-wider">KOSPI 추이</span>
-                <div class="h-44 mt-4">
-                    <canvas id="kospiSparkline"></canvas>
-                </div>
+        <!-- 10대 관심 ETF -->
+        <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+            <h3 class="text-sm font-bold text-[#1f6d68] uppercase tracking-wider mb-4"><i class="fa-solid fa-list-check mr-2"></i>10대 관심 ETF</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2" id="etf-container">
+                <!-- JS Dynamic -->
             </div>
-
-            <!-- 10대 관심 ETF 표기 -->
-            <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card flex flex-col justify-between">
-                <div>
-                    <h3 class="text-sm font-bold text-[#1f6d68] uppercase tracking-wider mb-4"><i class="fa-solid fa-list-check mr-2"></i>10대 관심 ETF</h3>
-                    <div class="space-y-2 max-h-[280px] overflow-y-auto pr-1" id="etf-container">
-                        <!-- JS Dynamic -->
-                    </div>
-                </div>
-                <div class="text-[10px] text-[#6b5f48] mt-4 pt-4 border-t border-[#d8c69c]/50">
-                    실시간 투자 보조지표 거래용 전용 매핑 데이터
-                </div>
+            <div class="text-[10px] text-[#6b5f48] mt-4 pt-4 border-t border-[#d8c69c]/50">
+                실시간 투자 보조지표 거래용 전용 매핑 데이터
             </div>
         </div>
 
@@ -87,6 +75,7 @@
                         <thead>
                             <tr class="border-b border-[#d8c69c] text-[11px] text-[#6b5f48] font-bold uppercase tracking-wider">
                                 <th class="py-3 px-2">기업명</th>
+                                <th class="py-3 px-2">섹터</th>
                                 <th class="py-3 px-2 text-right">마감종가</th>
                                 <th class="py-3 px-2 text-right">전일대비</th>
                                 <th class="py-3 px-2 text-right">등락률</th>
@@ -134,369 +123,122 @@
     <script>
         // --- KOSPI_DATA_START ---
         const marketData = {
-            "market_date": "2026년 7월 12일 (일) 장 마감",
-            "macro": [
-                        {
-                                    "name": "코스피",
-                                    "val": "7,475.94",
-                                    "change": "+184.03",
-                                    "pct": "+2.52%",
-                                    "low": "3,079.27",
-                                    "high": "9,385.59",
-                                    "link": "https://finance.yahoo.com/quote/%5EKS11"
-                        },
-                        {
-                                    "name": "코스닥",
-                                    "val": "837.43",
-                                    "change": "+43.43",
-                                    "pct": "+5.47%",
-                                    "low": "766.57",
-                                    "high": "1,229.42",
-                                    "link": "https://finance.yahoo.com/quote/%5EKQ11"
-                        },
-                        {
-                                    "name": "원/달러 환율",
-                                    "val": "1,498.87",
-                                    "change": "-4.48",
-                                    "pct": "-0.30%",
-                                    "low": "1,322.42",
-                                    "high": "1,587.70",
-                                    "link": "https://finance.yahoo.com/quote/KRW%3DX"
-                        }
-            ],
+            "kospi_index": "2,685.34",
+            "kospi_change": "-31.25",
+            "kospi_pct": "-1.15%",
+            "market_date": "2026년 7월 3일 (금) 장 마감",
             "etfs": [
                         {
                                     "name": "KODEX 200",
-                                    "price": "120,605원",
-                                    "change": "+2,905원",
-                                    "pct": "+2.47%",
-                                    "cap": "26.2조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=069500",
-                                    "trend": "up"
+                                    "price": "36,515원",
+                                    "change": "-410원",
+                                    "pct": "-1.11%",
+                                    "trend": "down"
                         },
                         {
                                     "name": "TIGER 코리아TOP10",
-                                    "price": "78,290원",
-                                    "change": "+2,205원",
-                                    "pct": "+2.90%",
-                                    "cap": "4,776억",
-                                    "link": "https://finance.naver.com/item/main.naver?code=277630",
-                                    "trend": "up"
+                                    "price": "12,450원",
+                                    "change": "-120원",
+                                    "pct": "-0.95%",
+                                    "trend": "down"
                         },
                         {
                                     "name": "KODEX 반도체",
-                                    "price": "146,380원",
-                                    "change": "+5,780원",
-                                    "pct": "+4.11%",
-                                    "cap": "6.5조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=091160",
-                                    "trend": "up"
+                                    "price": "28,340원",
+                                    "change": "-450원",
+                                    "pct": "-1.56%",
+                                    "trend": "down"
                         },
                         {
                                     "name": "TIGER 반도체TOP10",
-                                    "price": "32,585원",
-                                    "change": "-5원",
-                                    "pct": "-0.02%",
-                                    "cap": "3.9조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=381170",
+                                    "price": "14,250원",
+                                    "change": "-210원",
+                                    "pct": "-1.45%",
                                     "trend": "down"
                         },
                         {
                                     "name": "KODEX 증권",
-                                    "price": "22,335원",
-                                    "change": "+1,345원",
-                                    "pct": "+6.41%",
-                                    "cap": "8,387억",
-                                    "link": "https://finance.naver.com/item/main.naver?code=102970",
-                                    "trend": "up"
-                        },
-                        {
-                                    "name": "KODEX 은행",
-                                    "price": "16,360원",
-                                    "change": "+910원",
-                                    "pct": "+5.89%",
-                                    "cap": "4,532억",
-                                    "link": "https://finance.naver.com/item/main.naver?code=091170",
-                                    "trend": "up"
-                        },
-                        {
-                                    "name": "KODEX 자동차",
-                                    "price": "30,770원",
-                                    "change": "+1,155원",
-                                    "pct": "+3.90%",
-                                    "cap": "4,477억",
-                                    "link": "https://finance.naver.com/item/main.naver?code=091180",
-                                    "trend": "up"
-                        },
-                        {
-                                    "name": "TIGER 2차전지",
-                                    "price": "17,085원",
-                                    "change": "+880원",
-                                    "pct": "+5.43%",
-                                    "cap": "8,474억",
-                                    "link": "https://finance.naver.com/item/main.naver?code=305540",
-                                    "trend": "up"
-                        },
-                        {
-                                    "name": "TIGER 헬스케어",
-                                    "price": "36,675원",
-                                    "change": "+140원",
-                                    "pct": "+0.38%",
-                                    "cap": "1,467억",
-                                    "link": "https://finance.naver.com/item/main.naver?code=143860",
-                                    "trend": "up"
-                        },
-                        {
-                                    "name": "KODEX 코스닥150",
-                                    "price": "14,420원",
-                                    "change": "+650원",
-                                    "pct": "+4.72%",
-                                    "cap": "4.5조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=229200",
-                                    "trend": "up"
+                                    "price": "7,230원",
+                                    "change": "-40원",
+                                    "pct": "-0.55%",
+                                    "trend": "down"
                         }
             ],
             "stocks": [
                         {
                                     "name": "삼성전자",
-                                    "code": "005930",
-                                    "price": "285,000",
-                                    "change": "+7,000원",
-                                    "pct": "+2.52%",
-                                    "cap": "1871.5조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=005930",
-                                    "week52_low": "61,800",
-                                    "week52_high": "374,500"
+                                    "price": "75,400",
+                                    "change": "-800",
+                                    "pct": "-1.05%",
+                                    "cap": "450.1조"
                         },
                         {
                                     "name": "SK하이닉스",
-                                    "code": "000660",
-                                    "price": "2,180,000",
-                                    "change": "-6,000원",
-                                    "pct": "-0.27%",
-                                    "cap": "1547.5조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=000660",
-                                    "week52_low": "245,000",
-                                    "week52_high": "2,987,000"
-                        },
-                        {
-                                    "name": "현대차",
-                                    "code": "005380",
-                                    "price": "457,500",
-                                    "change": "+12,000원",
-                                    "pct": "+2.69%",
-                                    "cap": "119.8조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=005380",
-                                    "week52_low": "204,500",
-                                    "week52_high": "783,000"
+                                    "price": "182,300",
+                                    "change": "-3,100",
+                                    "pct": "-1.67%",
+                                    "cap": "132.7조"
                         },
                         {
                                     "name": "LG에너지솔루션",
-                                    "code": "373220",
-                                    "price": "326,000",
-                                    "change": "+12,500원",
-                                    "pct": "+3.99%",
-                                    "cap": "76.3조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=373220",
-                                    "week52_low": "309,500",
-                                    "week52_high": "527,000"
-                        },
-                        {
-                                    "name": "KB금융",
-                                    "code": "105560",
-                                    "price": "184,400",
-                                    "change": "+13,000원",
-                                    "pct": "+7.58%",
-                                    "cap": "65.4조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=105560",
-                                    "week52_low": "105,800",
-                                    "week52_high": "189,900"
+                                    "price": "345,500",
+                                    "change": "+1,500",
+                                    "pct": "+0.44%",
+                                    "cap": "80.8조"
                         },
                         {
                                     "name": "삼성바이오로직스",
-                                    "code": "207940",
-                                    "price": "1,395,000",
-                                    "change": "+70,000원",
-                                    "pct": "+5.28%",
-                                    "cap": "64.6조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=207940",
-                                    "week52_low": "1,228,000",
-                                    "week52_high": "1,987,000"
+                                    "price": "732,000",
+                                    "change": "-5,000",
+                                    "pct": "-0.68%",
+                                    "cap": "52.1조"
                         },
                         {
-                                    "name": "삼성물산",
-                                    "code": "028260",
-                                    "price": "391,500",
-                                    "change": "+13,000원",
-                                    "pct": "+3.43%",
-                                    "cap": "64.1조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=028260",
-                                    "week52_low": "155,300",
-                                    "week52_high": "565,000"
+                                    "name": "현대차",
+                                    "price": "242,500",
+                                    "change": "+2,000",
+                                    "pct": "+0.83%",
+                                    "cap": "50.8조"
                         },
                         {
                                     "name": "기아",
-                                    "code": "000270",
-                                    "price": "147,500",
-                                    "change": "+2,700원",
-                                    "pct": "+1.86%",
-                                    "cap": "57.3조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=000270",
-                                    "week52_low": "97,600",
-                                    "week52_high": "212,500"
-                        },
-                        {
-                                    "name": "HD현대중공업",
-                                    "code": "329180",
-                                    "price": "504,000",
-                                    "change": "-3,000원",
-                                    "pct": "-0.59%",
-                                    "cap": "52.9조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=329180",
-                                    "week52_low": "381,500",
-                                    "week52_high": "765,000"
-                        },
-                        {
-                                    "name": "신한지주",
-                                    "code": "055550",
-                                    "price": "109,200",
-                                    "change": "+4,200원",
-                                    "pct": "+4.00%",
-                                    "cap": "51.4조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=055550",
-                                    "week52_low": "63,600",
-                                    "week52_high": "111,800"
-                        },
-                        {
-                                    "name": "한화에어로스페이스",
-                                    "code": "012450",
-                                    "price": "967,000",
-                                    "change": "+14,000원",
-                                    "pct": "+1.47%",
-                                    "cap": "49.8조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=012450",
-                                    "week52_low": "791,000",
-                                    "week52_high": "1,655,000"
+                                    "price": "112,400",
+                                    "change": "+900",
+                                    "pct": "+0.81%",
+                                    "cap": "44.8조"
                         },
                         {
                                     "name": "셀트리온",
-                                    "code": "068270",
-                                    "price": "175,200",
-                                    "change": "+2,100원",
-                                    "pct": "+1.21%",
-                                    "cap": "40.2조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=068270",
-                                    "week52_low": "158,500",
-                                    "week52_high": "239,048"
+                                    "price": "182,100",
+                                    "change": "-1,200",
+                                    "pct": "-0.65%",
+                                    "cap": "39.8조"
                         },
                         {
-                                    "name": "하나금융지주",
-                                    "code": "086790",
-                                    "price": "128,500",
-                                    "change": "+5,900원",
-                                    "pct": "+4.81%",
-                                    "cap": "34.5조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=086790",
-                                    "week52_low": "80,500",
-                                    "week52_high": "136,000"
-                        },
-                        {
-                                    "name": "삼성SDI",
-                                    "code": "006400",
-                                    "price": "434,000",
-                                    "change": "+32,500원",
-                                    "pct": "+8.09%",
-                                    "cap": "34.2조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=006400",
-                                    "week52_low": "174,600",
-                                    "week52_high": "723,000"
-                        },
-                        {
-                                    "name": "NAVER",
-                                    "code": "035420",
-                                    "price": "191,300",
-                                    "change": "+6,900원",
-                                    "pct": "+3.74%",
-                                    "cap": "28.6조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=035420",
-                                    "week52_low": "184,000",
-                                    "week52_high": "304,000"
+                                    "name": "KB금융",
+                                    "price": "78,500",
+                                    "change": "-400",
+                                    "pct": "-0.51%",
+                                    "cap": "32.2조"
                         },
                         {
                                     "name": "POSCO홀딩스",
-                                    "code": "005490",
-                                    "price": "313,500",
-                                    "change": "+16,500원",
-                                    "pct": "+5.56%",
-                                    "cap": "23.7조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=005490",
-                                    "week52_low": "258,500",
-                                    "week52_high": "542,000"
+                                    "price": "365,000",
+                                    "change": "-2,500",
+                                    "pct": "-0.68%",
+                                    "cap": "30.9조"
                         },
                         {
-                                    "name": "LG화학",
-                                    "code": "051910",
-                                    "price": "264,000",
-                                    "change": "+12,500원",
-                                    "pct": "+4.97%",
-                                    "cap": "20.7조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=051910",
-                                    "week52_low": "248,500",
-                                    "week52_high": "437,500"
-                        },
-                        {
-                                    "name": "SK이노베이션",
-                                    "code": "096770",
-                                    "price": "102,900",
-                                    "change": "+3,900원",
-                                    "pct": "+3.94%",
-                                    "cap": "17.4조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=096770",
-                                    "week52_low": "87,700",
-                                    "week52_high": "155,400"
-                        },
-                        {
-                                    "name": "카카오",
-                                    "code": "035720",
-                                    "price": "35,350",
-                                    "change": "+1,700원",
-                                    "pct": "+5.05%",
-                                    "cap": "15.6조",
-                                    "link": "https://finance.naver.com/item/main.naver?code=035720",
-                                    "week52_low": "32,250",
-                                    "week52_high": "69,700"
-                        }
-            ],
-            "news": [
-                        {
-                                    "title": "\"손실 메우기엔 아직 멀었다\"...코스피, 7700선 찍고 상승폭 축소 [fn마감...",
-                                    "link": "https://n.news.naver.com/mnews/article/014/0005546671?sid=101",
-                                    "date": "2026-07-10 17:22",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "코스피, 美 반도체주 훈풍에 2.52% 상승…종목 88% 올랐다[시황종합]",
-                                    "link": "https://n.news.naver.com/mnews/article/421/0009052900?sid=101",
-                                    "date": "2026-07-10 16:20",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "[퇴근길머니] '반도체 투심 회복' 코스피 상승…SK하이닉스, 美 증시 데...",
-                                    "link": "https://n.news.naver.com/mnews/article/422/0000883825?sid=101",
-                                    "date": "2026-07-10 17:25",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "매수 사이드카 코스피·코스닥, 상승 마감…기관 홀로 '사자' [시황]",
-                                    "link": "https://n.news.naver.com/mnews/article/119/0003110239?sid=101",
-                                    "date": "2026-07-10 16:20",
-                                    "source": "네이버뉴스"
+                                    "name": "NAVER",
+                                    "price": "165,400",
+                                    "change": "-1,100",
+                                    "pct": "-0.66%",
+                                    "cap": "26.6조"
                         }
             ]
 };
         // --- KOSPI_DATA_END ---
 
-        let sparklineInstance = null;
 
         function renderDashboard() {
             document.getElementById('market-date').innerText = marketData.market_date;
@@ -504,7 +246,7 @@
             // 4대 매크로 지표
             const macroGrid = document.getElementById('macro-grid-container');
             macroGrid.innerHTML = '';
-            (marketData.macro || []).forEach(item => {
+            (marketData.macro || []).forEach((item, idx) => {
                 const isDown = (item.change || '').startsWith('-');
                 const colorClass = isDown ? 'text-blue-500' : 'text-red-500';
                 macroGrid.innerHTML += `
@@ -514,10 +256,16 @@
                         </div>
                         <h3 class="text-2xl font-black text-[#16283d] font-mono">${item.val}</h3>
                         <p class="text-xs font-bold ${colorClass} mt-1">${isDown ? '▼' : '▲'} ${item.change} (${item.pct})</p>
-                        <p class="text-[10px] text-[#6b5f48] mt-2">52주 ${item.low || '-'} ~ ${item.high || '-'}</p>
+                        <p class="text-[10px] text-[#6b5f48] mt-2 mb-2">52주 ${item.low || '-'} ~ ${item.high || '-'}</p>
+                        <div class="h-32 w-full">
+                            <canvas id="spark-macro-${idx}"></canvas>
+                        </div>
                     </div>
                 `;
             });
+            setTimeout(() => {
+                (marketData.macro || []).forEach((_, idx) => renderMacroChart(idx));
+            }, 50);
 
             // ETF
             const etfContainer = document.getElementById('etf-container');
@@ -546,6 +294,7 @@
                 stockBody.innerHTML += `
                     <tr class="hover:bg-[#efe4cd]/20 border-b border-[#d8c69c]/30">
                         <td class="py-3 px-2 text-[#233a54] font-bold">${stk.link ? `<a href="${stk.link}" target="_blank" class="hover:underline hover:text-[#1f6d68]">${stk.name}</a>` : stk.name}</td>
+                        <td class="py-3 px-2 text-[11px] text-[#5f5340]">${stk.sector || '-'}</td>
                         <td class="py-3 px-2 text-right font-mono text-[#1c2f45]">${stk.price}원</td>
                         <td class="py-3 px-2 text-right font-mono ${textCol}">${symbol} ${stk.change.replace('+','').replace('-','')}</td>
                         <td class="py-3 px-2 text-right font-mono ${textCol}">${stk.pct}</td>
@@ -554,8 +303,6 @@
                     </tr>
                 `;
             });
-
-            renderSparkline();
 
             // 뉴스
             const newsContainer = document.getElementById('news-container');
@@ -579,27 +326,27 @@
             }
         }
 
-        function renderSparkline() {
-            const ctx = document.getElementById('kospiSparkline').getContext('2d');
-            const dataPoints = [2650, 2680, 2710, 2690, 2730, 2750, 2720, 2780, 2810, 2850, 2820, 2790, 2750, 2790, 2840, 2860, 2820, 2780, 2740, 2685.34];
-            
-            if (sparklineInstance) sparklineInstance.destroy();
+        function renderMacroChart(idx) {
+            const canvas = document.getElementById(`spark-macro-${idx}`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const item = marketData.macro[idx];
+            const dataPoints = (item.history && item.history.length > 1) ? item.history : [item.close || 0];
+            const isDown = (item.change || '').startsWith('-');
+            const lineColor = isDown ? 'rgba(59, 130, 246, 1)' : 'rgba(220, 38, 38, 1)';
 
-            const chartColor = 'rgba(59, 130, 246, 1)';
-
-            sparklineInstance = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataPoints.map((_, i) => `W-${20-i}`),
+                    labels: dataPoints.map((_, i) => `D-${dataPoints.length - 1 - i}`),
                     datasets: [{
                         data: dataPoints,
-                        borderColor: chartColor,
-                        borderWidth: 2.5,
+                        borderColor: lineColor,
+                        borderWidth: 2,
                         pointRadius: 0,
-                        pointHoverRadius: 6,
                         fill: true,
-                        backgroundColor: chartColor.replace('1)', '0.05)'),
-                        tension: 0.35
+                        backgroundColor: lineColor.replace('1)', '0.06)'),
+                        tension: 0.3
                     }]
                 },
                 options: {
@@ -607,10 +354,15 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { display: false },
+                        x: {
+                            display: true,
+                            ticks: { color: '#8a7c60', font: { size: 9 }, maxTicksLimit: 6 },
+                            grid: { color: 'rgba(216,198,156,0.25)' }
+                        },
                         y: {
-                            grid: { color: 'rgba(51, 65, 85, 0.2)' },
-                            ticks: { color: '#64748b', font: { size: 9 } }
+                            display: true,
+                            ticks: { color: '#8a7c60', font: { size: 9 }, callback: v => v.toLocaleString() },
+                            grid: { color: 'rgba(216,198,156,0.25)' }
                         }
                     }
                 }
