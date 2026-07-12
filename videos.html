@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추천 투자 동영상</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .glow-card {
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
+            transition: all 0.25s ease;
+        }
+        .glow-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 35px -12px rgba(0, 0, 0, 0.45);
+        }
+        .video-frame { aspect-ratio: 16 / 9; background: #0f172a; }
+            body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+    </style>
+</head>
+<body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
+                    <i class="fa-brands fa-youtube text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-[#16283d] to-[#3d5268] bg-clip-text text-transparent">추천 투자 동영상</h1>
+                    <p class="text-[10px] text-[#6b5f48] uppercase tracking-widest font-semibold">Weekly Curated Picks</p>
+                </div>
+            </div>
+            <span id="week-label" class="text-xs text-[#5f5340] font-mono"></span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-[#1c2f45]">이번 주 추천 영상</h2>
+            <p class="text-sm text-[#5f5340] mt-1">매주 엄선한 재테크·투자 관련 영상 3~5개를 소개합니다.</p>
+        </div>
+
+        <div id="video-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- JS Dynamic -->
+        </div>
+    </main>
+
+    <footer class="border-t border-[#d8c69c]/60 py-6 mt-10">
+        <div class="max-w-4xl mx-auto px-4 text-center mb-4">
+            <p class="text-[10px] text-[#8a7c60] leading-relaxed">
+                &copy; 2026 5L2F. All rights reserved. 본 사이트의 모든 콘텐츠(텍스트, 디자인, 데이터 구성)의 저작권은 5L2F에 있으며 무단 복제·전재·재배포를 금합니다.<br>
+                본 콘텐츠는 정보 제공 목적의 참고자료이며, 정확성·완전성을 보장하지 않습니다. 투자 판단을 위한 권유나 자문이 아니며, 투자 결정과 결과에 대한 책임은 이용자 본인에게 있습니다.
+            </p>
+        </div>
+        <p class="text-center text-[11px] text-[#9c8f74]">영상 저작권은 각 채널에 있습니다.</p>
+    </footer>
+
+    <script>
+        // ---------------------------------------------------------------
+        // 매주 아래 배열 내용만 교체하면 됩니다 (신규 항목은 맨 위에 추가 권장).
+        // youtubeId: 영상 URL의 watch?v= 뒤에 오는 11자리 코드
+        //   예) https://www.youtube.com/watch?v=dQw4w9WgXcQ -> "dQw4w9WgXcQ"
+        // weekLabel: 헤더 우측에 표시될 주차 텍스트 (예: "2026년 7월 3주차")
+        // ---------------------------------------------------------------
+        const WEEK_LABEL = "[예시] 2026년 7월 3주차";
+
+        const VIDEOS_DATA = [
+            {
+                title: "[예시] 영상 제목을 입력하세요",
+                channel: "채널명",
+                youtubeId: "",
+                description: "이 영상을 추천하는 이유를 1~2문장으로 적어주세요. youtubeId를 비워두면 재생 영역 대신 안내 문구가 표시됩니다.",
+                dateAdded: "2026-07-11",
+            },
+            {
+                title: "[예시] 두 번째 추천 영상",
+                channel: "채널명",
+                youtubeId: "",
+                description: "실제 영상으로 교체 전까지는 예시 항목으로 표시됩니다.",
+                dateAdded: "2026-07-11",
+            },
+            {
+                title: "[예시] 세 번째 추천 영상",
+                channel: "채널명",
+                youtubeId: "",
+                description: "매주 3~5개씩 이 배열만 갱신하면 됩니다.",
+                dateAdded: "2026-07-11",
+            },
+        ];
+
+        function render() {
+            document.getElementById('week-label').innerText = WEEK_LABEL;
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = '';
+            VIDEOS_DATA.forEach(v => {
+                const playerHtml = v.youtubeId
+                    ? `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${v.youtubeId}" title="${v.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                    : `<div class="w-full h-full flex items-center justify-center"><i class="fa-brands fa-youtube text-4xl text-[#5c503c]"></i></div>`;
+                grid.innerHTML += `
+                    <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl overflow-hidden glow-card flex flex-col">
+                        <div class="video-frame w-full">${playerHtml}</div>
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[10px] bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 font-bold">${v.channel}</span>
+                                <span class="text-[10px] text-[#6b5f48]">${v.dateAdded || ''}</span>
+                            </div>
+                            <h3 class="font-bold text-sm text-[#1c2f45] leading-snug">${v.title}</h3>
+                            <p class="text-xs text-[#5f5340] leading-relaxed mt-2">${v.description}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = render;
+    </script>
+
+    <script>
+        // 저작권 보호를 위한 최소한의 억지 장치입니다. 캡처/개발자도구/네트워크 확인 등
+        // 기술적으로 우회 가능한 방법까지 막을 수는 없으며, 실질적 보호는 저작권 표시와
+        // 법적 조치입니다.
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            const blocked = e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+                (e.ctrlKey && (e.key === 'u' || e.key === 's'));
+            if (blocked) e.preventDefault();
+        });
+    </script>
+</body>
+</html>
