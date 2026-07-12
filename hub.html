@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5L2F 통합 대시보드</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+    * { font-family: 'Inter', 'Noto Sans KR', sans-serif; box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; background: #f7f1e3; }
+    .tabbar {
+        position: sticky; top: 0; z-index: 50;
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 16px;
+        background: rgba(247, 241, 227, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #d8c69c;
+        overflow-x: auto;
+    }
+    .tabbar .brand {
+        display: flex; align-items: center; gap: 10px;
+        margin-right: 8px; white-space: nowrap;
+    }
+    .tabbar .brand .brand-logo {
+        height: 46px; width: auto; border-radius: 6px;
+    }
+    .tabbar .brand span {
+        color: #1c2f45; font-weight: 700; font-size: 14px; letter-spacing: -0.02em;
+        font-family: Georgia, 'Times New Roman', serif;
+    }
+    .tab-btn {
+        display: flex; align-items: center; gap: 6px;
+        padding: 9px 16px; border-radius: 10px;
+        font-size: 13px; font-weight: 600; white-space: nowrap;
+        color: #5f5340; background: transparent; border: 1px solid transparent;
+        cursor: pointer; transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: #1c2f45; background: rgba(216, 198, 156, 0.35); }
+    .tab-btn.active {
+        color: white; background: rgba(31, 109, 104, 0.92);
+        border-color: rgba(31, 109, 104, 0.5);
+        box-shadow: 0 2px 10px rgba(31,109,104,0.3);
+    }
+    .frame-wrap { position: relative; width: 100%; height: calc(100vh - 60px); }
+    iframe {
+        position: absolute; inset: 0; width: 100%; height: 100%;
+        border: 0; background: #f7f1e3;
+    }
+    .loading {
+        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        color: #6b5f48; font-size: 13px; background: #f7f1e3;
+        pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .loading.hidden { opacity: 0; }
+</style>
+</head>
+<body>
+    <nav class="tabbar">
+        <div class="brand">
+            <img src="assets/logo_emblem.jpg" alt="5L2F 오병이어" class="brand-logo">
+        </div>
+        <button class="tab-btn active" data-src="market_comment.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-comment-dots"></i> 5L2F 생각
+        </button>
+        <button class="tab-btn" data-src="index.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-chart-line"></i> 한국 주식시장
+        </button>
+        <button class="tab-btn" data-src="us_market.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-globe-americas"></i> 미국시장
+        </button>
+        <button class="tab-btn" data-src="seoul_estate.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-city"></i> 서울아파트
+        </button>
+        <button class="tab-btn" data-src="gyeonggi_estate.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-building"></i> 수도권아파트
+        </button>
+        <button class="tab-btn" data-src="reits.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-building-columns"></i> 리츠
+        </button>
+        <button class="tab-btn" data-src="books.html" onclick="switchTab(this)">
+            <i class="fa-solid fa-book"></i> Books
+        </button>
+        <button class="tab-btn" data-src="videos.html" onclick="switchTab(this)">
+            <i class="fa-brands fa-youtube"></i> Video
+        </button>
+    </nav>
+
+    <div class="frame-wrap">
+        <div class="loading" id="loadingIndicator">불러오는 중...</div>
+        <iframe id="dashboardFrame" src="market_comment.html" title="dashboard"></iframe>
+    </div>
+
+    <script>
+        const frame = document.getElementById('dashboardFrame');
+        const loading = document.getElementById('loadingIndicator');
+
+        function switchTab(btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const target = btn.getAttribute('data-src');
+            if (frame.getAttribute('src') === target) return;
+            loading.classList.remove('hidden');
+            frame.src = target;
+        }
+
+        frame.addEventListener('load', () => loading.classList.add('hidden'));
+
+        // 새로고침 시 마지막으로 본 탭을 기억 (세션 내에서만, 저장소 미사용 - 새 창/새 세션에는 영향 없음)
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const target = document.querySelector(`.tab-btn[data-src="${hash}"]`);
+                if (target) switchTab(target);
+            }
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                window.location.hash = btn.getAttribute('data-src');
+            });
+        });
+    </script>
+</body>
+</html>
