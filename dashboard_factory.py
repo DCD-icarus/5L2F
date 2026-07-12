@@ -230,7 +230,9 @@ def fmt_cap_usd(market_cap):
 
 def _scrape_naver_market_cap(code):
     """야후파이낸스에 시가총액 데이터가 없는 국내 중소형 종목을 위한 최종 fallback.
-    네이버금융은 상장된 모든 종목의 시가총액을 항상 표시하므로 이를 직접 긁어옵니다."""
+    네이버금융은 상장된 모든 종목의 시가총액을 항상 표시하므로 이를 직접 긁어옵니다.
+    정확한 HTML 구조를 확신할 수 없어 여러 패턴을 순서대로 시도하고, 전부 실패하면
+    "시가총액" 주변 텍스트를 로그에 남겨 다음에 정확히 맞출 수 있게 합니다."""
     try:
         resp = requests.get(
             f"https://finance.naver.com/item/main.naver?code={code}",
@@ -240,14 +242,26 @@ def _scrape_naver_market_cap(code):
         )
         resp.raise_for_status()
         html = resp.text
-        m = re.search(r'id="_market_sum">\s*([\d,\s\n<>/emspa]*?)</em>', html, re.DOTALL)
-        if not m:
-            return None
-        digits = re.sub(r"<[^>]+>", "", m.group(1))
-        digits = re.sub(r"[^\d]", "", digits)
-        if not digits:
-            return None
-        return int(digits) * 1e8  # 네이버는 '억원' 단위로 표시
+
+        patterns = [
+            r'id="_market_sum">\s*([\d,\s\n<>/emspa]*?)</em>',
+            r'시가총액</th>\s*<td[^>]*>\s*<em[^>]*id="_market_sum"[^>]*>(.*?)</em>',
+            r'"marketSum"\s*:\s*"?([\d,]+)"?',
+            r'시가총액[^0-9]{0,40}([\d,]{4,})\s*억',
+        ]
+        for pat in patterns:
+            m = re.search(pat, html, re.DOTALL)
+            if m:
+                digits = re.sub(r"<[^>]+>", "", m.group(1))
+                digits = re.sub(r"[^\d]", "", digits)
+                if digits:
+                    return int(digits) * 1e8  # 네이버는 '억원' 단위로 표시
+
+        # 전부 실패 - 진단용으로 "시가총액" 주변 100자를 로그에 남김
+        idx = html.find("시가총액")
+        snippet = html[max(0, idx - 20):idx + 100].replace("\n", " ") if idx != -1 else "(시가총액 텍스트 자체를 못 찾음)"
+        log.warning(f"네이버 시가총액 패턴 매칭 실패({code}) - 주변 텍스트: {snippet}")
+        return None
     except Exception as e:
         log.warning(f"네이버 시가총액 조회 실패({code}): {e}")
         return None
@@ -751,7 +765,7 @@ def build_reits_data(dart_api_key, naver_id=None, naver_secret=None):
         log.warning("DART 공시 데이터 없음 (DART_API_KEY 미설정 또는 조회 실패) - disclosures 비움")
 
     news = fetch_naver_news_multi(
-        ["상장리츠", "리츠 목표주가 투자의견"], naver_id, naver_secret, per_query=4, total_cap=5
+        ["상장리츠", "리츠 목표주가 투자의견", "공모인프라펀드", "사모리츠"], naver_id, naver_secret, per_query=3, total_cap=6
     )
 
     return {"etfs": etfs, "assets": assets, "disclosures": disclosures, "news": news, "market_date": kst_date_label()}
