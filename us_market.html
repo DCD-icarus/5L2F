@@ -30,36 +30,24 @@
 
     <!-- Header -->
     <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
+                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2.5 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
                     <i class="fa-solid fa-globe text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-[#16283d] to-[#3d5268] bg-clip-text text-transparent">GLOBAL WALL STREET</h1>
-                    <p class="text-[10px] text-[#6b5f48] uppercase tracking-widest font-semibold">Real-time US Macro Engine</p>
+                    <h1 class="font-bold text-xl tracking-tight text-[#16283d]">미국시장</h1>
+                    <p class="text-xs text-[#5f5340] mt-0.5">S&P500·나스닥·다우와 20대 메가캡, WSJ·FT·Bloomberg 뉴스를 한 화면에서 확인합니다.</p>
                 </div>
             </div>
-            
-            <span class="text-xs text-[#5f5340] font-mono"><i class="fa-regular fa-clock mr-1"></i><span id="us-market-close-label">-</span></span>
+            <div class="text-left md:text-right">
+                <p class="text-[10px] text-[#6b5f48] font-medium uppercase tracking-wide">NY 마감 기준</p>
+                <p class="text-sm font-bold text-[#3a4d61]" id="us-date">-</p>
+            </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-12">
-        <!-- Subtitle -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between pb-4 border-b border-[#d8c69c]/50 gap-4">
-            <div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#1f6d68]/10 text-[#1f6d68] border border-[#1f6d68]/20">
-                    미국 시장 핵심 거시 경제 마감 현황
-                </span>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-[#16283d] tracking-tight mt-2">미국 뉴욕 증시 매크로 현황판</h2>
-                <p class="text-sm text-[#5f5340] mt-1">S&P 500, 나스닥, 다우지수와 미국채 10년/30년 금리, 국제 유가 차트를 실시간 동기화하여 시각화했습니다.</p>
-            </div>
-            <div class="text-right">
-                <p class="text-xs text-[#6b5f48] font-medium">거래일자 기준</p>
-                <p class="text-sm font-bold text-[#3a4d61]"><i class="fa-regular fa-calendar-check mr-1.5 text-[#1f6d68]"></i><span id="us-date">-</span></p>
-            </div>
-        </div>
 
         <!-- 1. S&P500, NASDAQ, DOW, US10Y, US30Y, WTI 6대 지표 모니터링 (1년 주간 차트 포함) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="macro-grid-container">
@@ -136,361 +124,137 @@
             "macro": [
                         {
                                     "name": "S&P 500",
-                                    "val": "7,575.39",
-                                    "change": "+31.75",
-                                    "pct": "+0.42%",
+                                    "val": "5,432.10",
+                                    "change": "+12.40",
+                                    "pct": "+0.23%",
                                     "trend": "up",
-                                    "low": "6,201.59",
-                                    "high": "7,620.90",
-                                    "link": "https://finance.yahoo.com/quote/%5EGSPC"
+                                    "high": "5,620.12",
+                                    "low": "4,820.44"
                         },
                         {
                                     "name": "나스닥 종합",
-                                    "val": "26,281.61",
-                                    "change": "+74.72",
-                                    "pct": "+0.29%",
+                                    "val": "17,820.50",
+                                    "change": "+56.80",
+                                    "pct": "+0.32%",
                                     "trend": "up",
-                                    "low": "20,492.63",
-                                    "high": "27,190.21",
-                                    "link": "https://finance.yahoo.com/quote/%5EIXIC"
+                                    "high": "18,650.10",
+                                    "low": "14,510.20"
                         },
                         {
                                     "name": "다우존스 지수",
-                                    "val": "52,637.01",
-                                    "change": "+149.60",
-                                    "pct": "+0.29%",
-                                    "trend": "up",
-                                    "low": "43,340.68",
-                                    "high": "53,289.30",
-                                    "link": "https://finance.yahoo.com/quote/%5EDJI"
+                                    "val": "39,120.40",
+                                    "change": "-15.20",
+                                    "pct": "-0.04%",
+                                    "trend": "down",
+                                    "high": "40,110.80",
+                                    "low": "36,810.15"
                         },
                         {
                                     "name": "미국채 10년 금리",
-                                    "val": "4.569%",
-                                    "change": "+0.030",
-                                    "pct": "+0.66%",
-                                    "trend": "up",
-                                    "low": "3.947%",
-                                    "high": "4.687%",
-                                    "link": "https://finance.yahoo.com/quote/%5ETNX"
+                                    "val": "4.215%",
+                                    "change": "-0.012",
+                                    "pct": "-0.28%",
+                                    "trend": "down",
+                                    "high": "4.730%",
+                                    "low": "3.820%"
                         },
                         {
                                     "name": "미국채 30년 금리",
-                                    "val": "5.071%",
-                                    "change": "+0.018",
-                                    "pct": "+0.36%",
-                                    "trend": "up",
-                                    "low": "4.528%",
-                                    "high": "5.197%",
-                                    "link": "https://finance.yahoo.com/quote/%5ETYX"
+                                    "val": "4.385%",
+                                    "change": "-0.008",
+                                    "pct": "-0.18%",
+                                    "trend": "down",
+                                    "high": "4.890%",
+                                    "low": "3.950%"
                         },
                         {
                                     "name": "WTI 선물 유가",
-                                    "val": "71.41",
-                                    "change": "-0.67",
-                                    "pct": "-0.93%",
-                                    "trend": "down",
-                                    "low": "54.98",
-                                    "high": "119.48",
-                                    "link": "https://finance.yahoo.com/quote/CL%3DF"
+                                    "val": "81.45",
+                                    "change": "+0.45",
+                                    "pct": "+0.56%",
+                                    "trend": "up",
+                                    "high": "88.20",
+                                    "low": "68.50"
                         }
             ],
             "top30": [
                         {
-                                    "ticker": "NVDA",
-                                    "name": "NVIDIA Corporation",
-                                    "sector": "기술",
-                                    "price": "$210.96",
-                                    "change": "+$8.18",
-                                    "pct": "+4.03%",
-                                    "cap": "5.11조달러",
-                                    "week52_low": "$162.02",
-                                    "week52_high": "$236.54",
-                                    "link": "https://finance.yahoo.com/quote/NVDA"
+                                    "ticker": "MSFT",
+                                    "price": "$428.15",
+                                    "change": "+$1.85",
+                                    "pct": "+0.43%",
+                                    "cap": "3.18조달러"
                         },
                         {
                                     "ticker": "AAPL",
-                                    "name": "Apple Inc.",
-                                    "sector": "기술",
-                                    "price": "$315.32",
-                                    "change": "$-0.90",
-                                    "pct": "-0.28%",
-                                    "cap": "4.63조달러",
-                                    "week52_low": "$201.50",
-                                    "week52_high": "$317.40",
-                                    "link": "https://finance.yahoo.com/quote/AAPL"
+                                    "price": "$210.45",
+                                    "change": "+$1.20",
+                                    "pct": "+0.57%",
+                                    "cap": "3.12조달러"
+                        },
+                        {
+                                    "ticker": "NVDA",
+                                    "price": "$125.80",
+                                    "change": "+$2.45",
+                                    "pct": "+1.99%",
+                                    "cap": "3.09조달러"
                         },
                         {
                                     "ticker": "GOOGL",
-                                    "name": "Alphabet Inc.",
-                                    "sector": "통신서비스",
-                                    "price": "$357.18",
-                                    "change": "$-1.71",
-                                    "pct": "-0.48%",
-                                    "cap": "4.36조달러",
-                                    "week52_low": "$179.68",
-                                    "week52_high": "$408.61",
-                                    "link": "https://finance.yahoo.com/quote/GOOGL"
-                        },
-                        {
-                                    "ticker": "MSFT",
-                                    "name": "Microsoft Corporation",
-                                    "sector": "기술",
-                                    "price": "$385.10",
-                                    "change": "+$0.74",
-                                    "pct": "+0.19%",
-                                    "cap": "2.86조달러",
-                                    "week52_low": "$349.20",
-                                    "week52_high": "$555.45",
-                                    "link": "https://finance.yahoo.com/quote/MSFT"
+                                    "price": "$175.60",
+                                    "change": "-$0.80",
+                                    "pct": "-0.45%",
+                                    "cap": "2.18조달러"
                         },
                         {
                                     "ticker": "AMZN",
-                                    "name": "Amazon.com, Inc.",
-                                    "sector": "임의소비재",
-                                    "price": "$245.34",
-                                    "change": "$-1.70",
-                                    "pct": "-0.69%",
-                                    "cap": "2.64조달러",
-                                    "week52_low": "$196.00",
-                                    "week52_high": "$278.56",
-                                    "link": "https://finance.yahoo.com/quote/AMZN"
-                        },
-                        {
-                                    "ticker": "AVGO",
-                                    "name": "Broadcom Inc.",
-                                    "sector": "기술",
-                                    "price": "$399.97",
-                                    "change": "$-1.14",
-                                    "pct": "-0.28%",
-                                    "cap": "1.90조달러",
-                                    "week52_low": "$269.58",
-                                    "week52_high": "$495.00",
-                                    "link": "https://finance.yahoo.com/quote/AVGO"
+                                    "price": "$189.40",
+                                    "change": "+$1.10",
+                                    "pct": "+0.58%",
+                                    "cap": "1.97조달러"
                         },
                         {
                                     "ticker": "META",
-                                    "name": "Meta Platforms, Inc.",
-                                    "sector": "통신서비스",
-                                    "price": "$669.21",
-                                    "change": "+$37.73",
-                                    "pct": "+5.97%",
-                                    "cap": "1.70조달러",
-                                    "week52_low": "$520.26",
-                                    "week52_high": "$796.25",
-                                    "link": "https://finance.yahoo.com/quote/META"
+                                    "price": "$495.20",
+                                    "change": "-$3.15",
+                                    "pct": "-0.63%",
+                                    "cap": "1.25조달러"
                         },
                         {
                                     "ticker": "TSLA",
-                                    "name": "Tesla, Inc.",
-                                    "sector": "임의소비재",
-                                    "price": "$407.76",
-                                    "change": "+$1.21",
-                                    "pct": "+0.30%",
-                                    "cap": "1.53조달러",
-                                    "week52_low": "$297.82",
-                                    "week52_high": "$498.83",
-                                    "link": "https://finance.yahoo.com/quote/TSLA"
+                                    "price": "$198.50",
+                                    "change": "+$4.20",
+                                    "pct": "+2.16%",
+                                    "cap": "6,330억달러"
+                        },
+                        {
+                                    "ticker": "AVGO",
+                                    "price": "$1,410.20",
+                                    "change": "+$15.40",
+                                    "pct": "+1.10%",
+                                    "cap": "6,540억달러"
                         },
                         {
                                     "ticker": "LLY",
-                                    "name": "Eli Lilly and Company",
-                                    "sector": "헬스케어",
-                                    "price": "$1,188.58",
-                                    "change": "$-28.37",
-                                    "pct": "-2.33%",
-                                    "cap": "1.06조달러",
-                                    "week52_low": "$623.78",
-                                    "week52_high": "$1,249.45",
-                                    "link": "https://finance.yahoo.com/quote/LLY"
-                        },
-                        {
-                                    "ticker": "WMT",
-                                    "name": "Walmart Inc.",
-                                    "sector": "필수소비재",
-                                    "price": "$113.90",
-                                    "change": "+$1.69",
-                                    "pct": "+1.51%",
-                                    "cap": "906억달러",
-                                    "week52_low": "$94.38",
-                                    "week52_high": "$135.16",
-                                    "link": "https://finance.yahoo.com/quote/WMT"
-                        },
-                        {
-                                    "ticker": "JPM",
-                                    "name": "JP Morgan Chase & Co.",
-                                    "sector": "금융",
-                                    "price": "$336.47",
-                                    "change": "+$1.00",
-                                    "pct": "+0.30%",
-                                    "cap": "902억달러",
-                                    "week52_low": "$279.10",
-                                    "week52_high": "$343.45",
-                                    "link": "https://finance.yahoo.com/quote/JPM"
+                                    "price": "$895.40",
+                                    "change": "-$5.10",
+                                    "pct": "-0.57%",
+                                    "cap": "8,490억달러"
                         },
                         {
                                     "ticker": "V",
-                                    "name": "Visa Inc.",
-                                    "sector": "금융",
-                                    "price": "$348.97",
-                                    "change": "+$0.77",
-                                    "pct": "+0.22%",
-                                    "cap": "664억달러",
-                                    "week52_low": "$293.89",
-                                    "week52_high": "$365.02",
-                                    "link": "https://finance.yahoo.com/quote/V"
-                        },
-                        {
-                                    "ticker": "JNJ",
-                                    "name": "Johnson & Johnson",
-                                    "sector": "헬스케어",
-                                    "price": "$256.98",
-                                    "change": "$-2.12",
-                                    "pct": "-0.82%",
-                                    "cap": "619억달러",
-                                    "week52_low": "$154.80",
-                                    "week52_high": "$269.43",
-                                    "link": "https://finance.yahoo.com/quote/JNJ"
-                        },
-                        {
-                                    "ticker": "XOM",
-                                    "name": "ExxonMobil Holdings Corporation",
-                                    "sector": "에너지",
-                                    "price": "$138.88",
-                                    "change": "+$1.42",
-                                    "pct": "+1.03%",
-                                    "cap": "576억달러",
-                                    "week52_low": "$105.53",
-                                    "week52_high": "$176.41",
-                                    "link": "https://finance.yahoo.com/quote/XOM"
-                        },
-                        {
-                                    "ticker": "MA",
-                                    "name": "Mastercard Incorporated",
-                                    "sector": "금융",
-                                    "price": "$526.74",
-                                    "change": "+$3.54",
-                                    "pct": "+0.68%",
-                                    "cap": "465억달러",
-                                    "week52_low": "$464.52",
-                                    "week52_high": "$601.77",
-                                    "link": "https://finance.yahoo.com/quote/MA"
-                        },
-                        {
-                                    "ticker": "COST",
-                                    "name": "Costco Wholesale Corporation",
-                                    "sector": "필수소비재",
-                                    "price": "$916.25",
-                                    "change": "+$3.28",
-                                    "pct": "+0.36%",
-                                    "cap": "406억달러",
-                                    "week52_low": "$844.06",
-                                    "week52_high": "$1,096.50",
-                                    "link": "https://finance.yahoo.com/quote/COST"
-                        },
-                        {
-                                    "ticker": "ORCL",
-                                    "name": "Oracle Corporation",
-                                    "sector": "기술",
-                                    "price": "$140.64",
-                                    "change": "$-3.08",
-                                    "pct": "-2.14%",
-                                    "cap": "405억달러",
-                                    "week52_low": "$134.57",
-                                    "week52_high": "$345.72",
-                                    "link": "https://finance.yahoo.com/quote/ORCL"
-                        },
-                        {
-                                    "ticker": "UNH",
-                                    "name": "UnitedHealth Group Incorporated",
-                                    "sector": "헬스케어",
-                                    "price": "$424.62",
-                                    "change": "$-7.06",
-                                    "pct": "-1.64%",
-                                    "cap": "386억달러",
-                                    "week52_low": "$234.60",
-                                    "week52_high": "$434.30",
-                                    "link": "https://finance.yahoo.com/quote/UNH"
-                        },
-                        {
-                                    "ticker": "PG",
-                                    "name": "Procter & Gamble Company (The)",
-                                    "sector": "필수소비재",
-                                    "price": "$147.04",
-                                    "change": "+$0.19",
-                                    "pct": "+0.13%",
-                                    "cap": "342억달러",
-                                    "week52_low": "$137.62",
-                                    "week52_high": "$167.25",
-                                    "link": "https://finance.yahoo.com/quote/PG"
-                        },
-                        {
-                                    "ticker": "HD",
-                                    "name": "Home Depot, Inc. (The)",
-                                    "sector": "임의소비재",
-                                    "price": "$343.30",
-                                    "change": "+$4.57",
-                                    "pct": "+1.35%",
-                                    "cap": "342억달러",
-                                    "week52_low": "$289.10",
-                                    "week52_high": "$426.75",
-                                    "link": "https://finance.yahoo.com/quote/HD"
+                                    "price": "$272.30",
+                                    "change": "+$0.85",
+                                    "pct": "+0.31%",
+                                    "cap": "5,580억달러"
                         }
-            ],
-            "news": [
-                        {
-                                    "title": "코스피·코스닥 강세에 뉴욕증시도 상승…월요일 국내 증시 기대감 높아...",
-                                    "link": "https://www.cbci.co.kr/news/articleView.html?idxno=588486",
-                                    "date": "2026-07-11 20:50",
-                                    "source": "네이버뉴스"
-                        }
-            ],
-            "foreign_news": [
-                        {
-                                    "source": "FT",
-                                    "title": "Big private equity firms pull in more cash as winners take all",
-                                    "title_ko": "대형 사모펀드 회사들은 승자가 모든 것을 가져감에 따라 더 많은 현금을 끌어들입니다.",
-                                    "summary": "Shrinking pool of recipients points to coming wave of so-called zombie firms",
-                                    "summary_ko": "수취인 수가 줄어들면서 소위 좀비 회사의 물결이 다가오고 있다고 지적합니다.",
-                                    "link": "https://www.ft.com/content/b7130eb3-c8bd-460f-9d8a-082e7bb48b48",
-                                    "date": "Sun, 12 Jul 2026 04:00:06 GMT"
-                        },
-                        {
-                                    "source": "FT",
-                                    "title": "US states push to repurpose abandoned oil wells",
-                                    "title_ko": "미국 주정부, 버려진 유정 용도 변경 추진",
-                                    "summary": "Pennsylvania, Oklahoma and others are finding ways to turn an expensive and polluting problem into a new opportunity",
-                                    "summary_ko": "펜실베이니아, 오클라호마 등은 값비싸고 오염되는 문제를 새로운 기회로 전환할 수 있는 방법을 찾고 있습니다.",
-                                    "link": "https://www.ft.com/content/2ca5ae83-cd8e-4d12-ac29-d1a5282846c8",
-                                    "date": "Sun, 12 Jul 2026 04:00:06 GMT"
-                        },
-                        {
-                                    "source": "Bloomberg",
-                                    "title": "Typhoon Bavi Weakens as Heavy Rain Spreads Across China",
-                                    "title_ko": "중국 전역에 폭우가 퍼지면서 태풍 바비가 약해짐",
-                                    "summary": "China’s National Meteorological Center said Typhoon Bavi weakened to a severe tropical storm on Sunday morning after making landfall in Zhejiang.",
-                                    "summary_ko": "중국 국립기상센터는 태풍 바비가 일요일 아침 절강에 상륙한 후 심한 열대성 폭풍으로 약화되었다고 밝혔다.",
-                                    "link": "https://www.bloomberg.com/news/articles/2026-07-12/typhoon-bavi-weakens-as-heavy-rain-spreads-across-china",
-                                    "date": "Sun, 12 Jul 2026 01:59:07 GMT"
-                        },
-                        {
-                                    "source": "Bloomberg",
-                                    "title": "US, Iran Trade Wave of Attacks as Tehran Says Hormuz Closed",
-                                    "title_ko": "미국, 이란, 테헤란이 호르무즈가 폐쇄되었다고 말하면서 공격의 무역 물결",
-                                    "summary": "US forces struck Iran for a third time in a week, prompting retaliatory attacks from Tehran as it declared the Strait of Hormuz would be closed “until further notice.”",
-                                    "summary_ko": "미군은 일주일 만에 세 번째로 이란을 공격했고, 호르무즈 해협이 \"추가 공지가 있을 때까지\" 폐쇄될 것이라고 선언하면서 테헤란의 보복 공격을 촉구했다.",
-                                    "link": "https://www.bloomberg.com/news/articles/2026-07-12/us-iran-trade-wave-of-attacks-as-tehran-says-hormuz-closed",
-                                    "date": "Sun, 12 Jul 2026 08:06:08 GMT"
-                        }
-            ],
-            "market_date": "2026년 7월 12일 (일) NY 마감 기준"
+            ]
 };
         // --- US_DATA_END ---
 
         function renderUsMarket() {
             document.getElementById('us-date').innerText = marketData.market_date || '-';
-            document.getElementById('us-market-close-label').innerText = (marketData.market_date || '') + ' NY CLOSE';
-
+            
             const grid = document.getElementById('macro-grid-container');
             grid.innerHTML = '';
 
