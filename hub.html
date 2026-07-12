@@ -11,38 +11,40 @@
     html, body { margin: 0; padding: 0; height: 100%; background: #f7f1e3; }
     .tabbar {
         position: sticky; top: 0; z-index: 50;
-        display: flex; align-items: center; gap: 8px;
-        padding: 10px 16px;
-        background: rgba(247, 241, 227, 0.9);
+        background: rgba(247, 241, 227, 0.92);
         backdrop-filter: blur(10px);
         border-bottom: 1px solid #d8c69c;
-        overflow-x: auto;
     }
-    .tabbar .brand {
-        display: flex; align-items: center; gap: 10px;
-        margin-right: 8px; white-space: nowrap;
+    .tabbar-inner {
+        max-width: 1280px; margin: 0 auto; padding: 14px 24px;
     }
-    .tabbar .brand .brand-logo {
-        height: 46px; width: auto; border-radius: 6px;
+    .brand-row {
+        display: flex; justify-content: center; margin-bottom: 10px;
     }
-    .tabbar .brand span {
-        color: #1c2f45; font-weight: 700; font-size: 14px; letter-spacing: -0.02em;
-        font-family: Georgia, 'Times New Roman', serif;
+    .brand-logo-link { display: inline-block; transition: transform 0.15s ease; }
+    .brand-logo-link:hover { transform: scale(1.03); }
+    .brand-logo {
+        height: 150px; width: auto; border-radius: 10px;
+    }
+    .menu-row {
+        display: flex; justify-content: center; align-items: center;
+        gap: 10px; flex-wrap: wrap;
     }
     .tab-btn {
-        display: flex; align-items: center; gap: 6px;
-        padding: 9px 16px; border-radius: 10px;
-        font-size: 13px; font-weight: 600; white-space: nowrap;
+        display: flex; align-items: center; gap: 8px;
+        padding: 12px 22px; border-radius: 12px;
+        font-size: 16px; font-weight: 700; white-space: nowrap;
         color: #5f5340; background: transparent; border: 1px solid transparent;
         cursor: pointer; transition: all 0.15s ease;
     }
+    .tab-btn i { font-size: 15px; }
     .tab-btn:hover { color: #1c2f45; background: rgba(216, 198, 156, 0.35); }
     .tab-btn.active {
         color: white; background: rgba(31, 109, 104, 0.92);
         border-color: rgba(31, 109, 104, 0.5);
         box-shadow: 0 2px 10px rgba(31,109,104,0.3);
     }
-    .frame-wrap { position: relative; width: 100%; height: calc(100vh - 60px); }
+    .frame-wrap { position: relative; width: 100%; height: calc(100vh - 210px); }
     iframe {
         position: absolute; inset: 0; width: 100%; height: 100%;
         border: 0; background: #f7f1e3;
@@ -57,33 +59,39 @@
 </head>
 <body>
     <nav class="tabbar">
-        <div class="brand">
-            <img src="assets/logo_emblem.jpg" alt="5L2F 오병이어" class="brand-logo">
+        <div class="tabbar-inner">
+            <div class="brand-row">
+                <a href="about.html" target="dashboardFrame" class="brand-logo-link" onclick="selectAbout(event)">
+                    <img src="assets/logo_emblem.jpg" alt="5L2F 오병이어 - 소개 페이지로 이동" class="brand-logo">
+                </a>
+            </div>
+            <div class="menu-row">
+                <button class="tab-btn active" data-src="market_comment.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-comment-dots"></i> 5L2F 생각
+                </button>
+                <button class="tab-btn" data-src="index.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-chart-line"></i> 한국 주식시장
+                </button>
+                <button class="tab-btn" data-src="us_market.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-globe-americas"></i> 미국시장
+                </button>
+                <button class="tab-btn" data-src="seoul_estate.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-city"></i> 서울아파트
+                </button>
+                <button class="tab-btn" data-src="gyeonggi_estate.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-building"></i> 수도권아파트
+                </button>
+                <button class="tab-btn" data-src="reits.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-building-columns"></i> 리츠
+                </button>
+                <button class="tab-btn" data-src="books.html" onclick="switchTab(this)">
+                    <i class="fa-solid fa-book"></i> Books
+                </button>
+                <button class="tab-btn" data-src="videos.html" onclick="switchTab(this)">
+                    <i class="fa-brands fa-youtube"></i> Video
+                </button>
+            </div>
         </div>
-        <button class="tab-btn active" data-src="market_comment.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-comment-dots"></i> 5L2F 생각
-        </button>
-        <button class="tab-btn" data-src="index.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-chart-line"></i> 한국 주식시장
-        </button>
-        <button class="tab-btn" data-src="us_market.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-globe-americas"></i> 미국시장
-        </button>
-        <button class="tab-btn" data-src="seoul_estate.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-city"></i> 서울아파트
-        </button>
-        <button class="tab-btn" data-src="gyeonggi_estate.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-building"></i> 수도권아파트
-        </button>
-        <button class="tab-btn" data-src="reits.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-building-columns"></i> 리츠
-        </button>
-        <button class="tab-btn" data-src="books.html" onclick="switchTab(this)">
-            <i class="fa-solid fa-book"></i> Books
-        </button>
-        <button class="tab-btn" data-src="videos.html" onclick="switchTab(this)">
-            <i class="fa-brands fa-youtube"></i> Video
-        </button>
     </nav>
 
     <div class="frame-wrap">
@@ -102,6 +110,14 @@
             if (frame.getAttribute('src') === target) return;
             loading.classList.remove('hidden');
             frame.src = target;
+        }
+
+        function selectAbout(e) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            loading.classList.remove('hidden');
+            frame.src = 'about.html';
+            window.location.hash = 'about.html';
         }
 
         frame.addEventListener('load', () => loading.classList.add('hidden'));
