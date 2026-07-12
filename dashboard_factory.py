@@ -112,8 +112,11 @@ US_MACRO_TICKERS = [
 ]
 # 서울 관심 지역 법정동코드 (앞 5자리) - 필요시 추가/수정
 LAWD_CODES = {
-    "강남구": "11680", "서초구": "11650", "송파구": "11710",
-    "강동구": "11740", "용산구": "11170", "성동구": "11200",
+    "종로구": "11110", "중구": "11140", "용산구": "11170", "성동구": "11200", "광진구": "11215",
+    "동대문구": "11230", "중랑구": "11260", "성북구": "11290", "강북구": "11305", "도봉구": "11320",
+    "노원구": "11350", "은평구": "11380", "서대문구": "11410", "마포구": "11440", "양천구": "11470",
+    "강서구": "11500", "구로구": "11530", "금천구": "11545", "영등포구": "11560", "동작구": "11590",
+    "관악구": "11620", "서초구": "11650", "강남구": "11680", "송파구": "11710", "강동구": "11740",
 }
 
 # 강남권 핵심 단지 16개동 (core 테이블 필터링 기준 - 동 단위)
@@ -391,14 +394,14 @@ def _resolve_sector(t):
         return None
 
 
-def yf_snapshot(ticker, want_dividend=False, want_52w=False, want_name=False, want_sector=False):
-    """최근 2거래일 종가 + 시가총액(+옵션: 배당수익률/52주 최고저/종목명/섹터)을 반환. 실패 시 None."""
+def yf_snapshot(ticker, want_dividend=False, want_52w=False, want_name=False, want_sector=False, want_history=False):
+    """최근 2거래일 종가 + 시가총액(+옵션: 배당수익률/52주 최고저/종목명/섹터/최근 1개월 일별 종가)을 반환. 실패 시 None."""
     if yf is None:
         log.error("yfinance가 설치되어 있지 않습니다 (pip install yfinance).")
         return None
     try:
         t = yf.Ticker(ticker)
-        hist = t.history(period="7d")
+        hist = t.history(period="1mo" if want_history else "7d")
         hist = hist.dropna(subset=["Close"])
         if len(hist) < 2:
             log.warning(f"{ticker}: 최근 시세 데이터 부족")
@@ -413,7 +416,7 @@ def yf_snapshot(ticker, want_dividend=False, want_52w=False, want_name=False, wa
             "date": hist.index[-1].strftime("%Y-%m-%d"),
             "market_cap": _resolve_market_cap(t, price, naver_code=naver_code),
             "dividend_yield": None,
-            "week52_high": None, "week52_low": None, "name": None, "sector": None,
+            "week52_high": None, "week52_low": None, "name": None, "sector": None, "history": None,
         }
         if want_dividend:
             result["dividend_yield"] = _resolve_trailing_dividend_yield(t, price)
@@ -423,6 +426,8 @@ def yf_snapshot(ticker, want_dividend=False, want_52w=False, want_name=False, wa
             result["name"] = _resolve_company_name(t)
         if want_sector:
             result["sector"] = _resolve_sector(t)
+        if want_history:
+            result["history"] = [round(float(v), 4) for v in hist["Close"].tolist()]
         return result
     except Exception as e:
         log.warning(f"{ticker} 시세 조회 실패: {e}")
@@ -632,7 +637,7 @@ KOSPI_STOCK_NAMES = [
 def build_kospi_data(naver_id=None, naver_secret=None):
     macro = []
     for ticker, name in KOSPI_MACRO_TICKERS:
-        d = yf_last_two(ticker, want_52w=True)
+        d = yf_last_two(ticker, want_52w=True, want_history=True)
         if d is None:
             log.warning(f"매크로 지표 조회 실패(건너뜀): {name}")
             continue
@@ -644,7 +649,7 @@ def build_kospi_data(naver_id=None, naver_secret=None):
         macro.append({
             "name": name, "val": f"{d['close']:,.2f}",
             "change": f"{'+' if c>=0 else ''}{c:,.2f}", "pct": fmt_pct(p),
-            "low": low_fmt, "high": high_fmt,
+            "low": low_fmt, "high": high_fmt, "history": d.get("history") or [],
             "link": f"https://finance.yahoo.com/quote/{quote(ticker, safe='')}",
         })
 
@@ -667,7 +672,7 @@ def build_kospi_data(naver_id=None, naver_secret=None):
     stocks = []
     for name in KOSPI_STOCK_NAMES:
         code = resolve_stock_code(name)
-        d = yf_last_two(f"{code}.KS", want_52w=True) if code else None
+        d = yf_last_two(f"{code}.KS", want_52w=True, want_sector=True) if code else None
         if d is None:
             log.warning(f"종목 시세 누락(건너뜀): {name}")
             continue
@@ -676,7 +681,7 @@ def build_kospi_data(naver_id=None, naver_secret=None):
         week52_low = f"{d['week52_low']:,.0f}" if d["week52_low"] else "-"
         week52_high = f"{d['week52_high']:,.0f}" if d["week52_high"] else "-"
         stocks.append({
-            "name": name, "code": code, "price": f"{d['close']:,.0f}",
+            "name": name, "code": code, "sector": d.get("sector") or "-", "price": f"{d['close']:,.0f}",
             "change": fmt_won_change(c), "pct": fmt_pct(p), "cap": fmt_cap_won(d["market_cap"]),
             "link": f"https://finance.naver.com/item/main.naver?code={code}",
             "week52_low": week52_low, "week52_high": week52_high,
@@ -987,7 +992,7 @@ def build_foreign_market_news(limit_per_feed=2):
 def build_us_market_data(naver_id=None, naver_secret=None):
     macro = []
     for ticker, name in US_MACRO_TICKERS:
-        d = yf_last_two(ticker, want_52w=True)
+        d = yf_last_two(ticker, want_52w=True, want_history=True)
         if d is None:
             log.warning(f"미국 지표 조회 실패(건너뜀): {name}")
             continue
@@ -1003,6 +1008,7 @@ def build_us_market_data(naver_id=None, naver_secret=None):
         macro.append({
             "name": name, "val": val, "change": chg, "pct": fmt_pct(p),
             "trend": "down" if c < 0 else "up", "low": low_fmt, "high": high_fmt,
+            "history": d.get("history") or [],
             "link": f"https://finance.yahoo.com/quote/{quote(ticker, safe='')}",
         })
 
@@ -1098,6 +1104,87 @@ def _naver_land_search_link(apt_name):
     return f"https://m.land.naver.com/search/result/{quote(apt_name)}"
 
 
+def _add_deal_dt(t):
+    try:
+        t["deal_dt"] = datetime(int(t["year"]), int(t["month"]), int(t["day"] or "1"), tzinfo=KST)
+    except (ValueError, TypeError):
+        t["deal_dt"] = None
+    return t
+
+
+def _price_per_pyeong(t):
+    try:
+        area_sqm = float(t["area"])
+        if area_sqm <= 0:
+            return None
+        return t["amount_manwon"] / (area_sqm / 3.3058)
+    except (ValueError, TypeError, ZeroDivisionError):
+        return None
+
+
+def build_gu_rankings(all_trades, now):
+    """구별 주간(최근 7일 vs 그 전 7일)·월간(이번달 vs 지난달) 평단가 등락률.
+    한국부동산원의 공식 주택가격동향지수와는 산출방식이 다른, 5L2F가 국토부
+    실거래 데이터로 직접 집계한 자체 지표입니다 (표본이 적은 주에는 변동폭이
+    과장될 수 있어 참고용으로만 활용해주세요)."""
+    week_cut1 = now - timedelta(days=7)
+    week_cut2 = now - timedelta(days=14)
+    month_start = now.replace(day=1)
+    prev_month_end = month_start - timedelta(days=1)
+    prev_month_start = prev_month_end.replace(day=1)
+
+    by_gu = {}
+    for t in all_trades:
+        by_gu.setdefault(t["gu"], []).append(t)
+
+    def avg_ppp(trades):
+        vals = [v for v in (_price_per_pyeong(t) for t in trades) if v]
+        return (sum(vals) / len(vals), len(vals)) if vals else (None, 0)
+
+    rows = []
+    for gu, trades in by_gu.items():
+        with_dt = [t for t in trades if t.get("deal_dt")]
+        this_week = [t for t in with_dt if week_cut1 <= t["deal_dt"] <= now]
+        last_week = [t for t in with_dt if week_cut2 <= t["deal_dt"] < week_cut1]
+        this_month = [t for t in with_dt if t["deal_dt"] >= month_start]
+        last_month = [t for t in with_dt if prev_month_start <= t["deal_dt"] <= prev_month_end]
+
+        tw_avg, tw_n = avg_ppp(this_week)
+        lw_avg, lw_n = avg_ppp(last_week)
+        tm_avg, tm_n = avg_ppp(this_month)
+        lm_avg, lm_n = avg_ppp(last_month)
+
+        weekly_pct = ((tw_avg - lw_avg) / lw_avg * 100) if (tw_avg and lw_avg) else None
+        monthly_pct = ((tm_avg - lm_avg) / lm_avg * 100) if (tm_avg and lm_avg) else None
+
+        rows.append({
+            "gu": gu,
+            "weekly_pct": weekly_pct, "weekly_n": tw_n + lw_n,
+            "monthly_pct": monthly_pct, "monthly_n": tm_n + lm_n,
+        })
+
+    valid_weekly = [r for r in rows if r["weekly_pct"] is not None]
+    valid_weekly.sort(key=lambda r: r["weekly_pct"], reverse=True)
+    top5 = valid_weekly[:5]
+    bottom5 = valid_weekly[-5:] if len(valid_weekly) > 5 else []
+    avg_weekly = sum(r["weekly_pct"] for r in valid_weekly) / len(valid_weekly) if valid_weekly else None
+
+    def fmt_row(r):
+        return {
+            "gu": r["gu"],
+            "weekly_pct": f"{'+' if r['weekly_pct'] >= 0 else ''}{r['weekly_pct']:.2f}%" if r["weekly_pct"] is not None else "-",
+            "monthly_pct": f"{'+' if r['monthly_pct'] >= 0 else ''}{r['monthly_pct']:.2f}%" if r["monthly_pct"] is not None else "-",
+            "sample_n": r["weekly_n"],
+        }
+
+    return {
+        "top5": [fmt_row(r) for r in top5],
+        "bottom5": [fmt_row(r) for r in bottom5],
+        "avg_weekly_pct": f"{'+' if avg_weekly >= 0 else ''}{avg_weekly:.2f}%" if avg_weekly is not None else "-",
+        "gu_count": len(valid_weekly),
+    }
+
+
 def build_seoul_estate_data(molit_api_key):
     if not molit_api_key:
         log.error("MOLIT_API_KEY 미설정 - 서울 실거래가 조회 불가")
@@ -1109,16 +1196,18 @@ def build_seoul_estate_data(molit_api_key):
 
     all_trades = []
     for gu, code in LAWD_CODES.items():
-        trades = fetch_molit_trades(code, deal_ymd, molit_api_key)
-        if not trades:
-            trades = fetch_molit_trades(code, prev_ymd, molit_api_key)  # 이번달 신고 건이 없으면 전월분
-        for t in trades:
-            t["gu"] = gu
-        all_trades.extend(trades)
+        for ymd in (deal_ymd, prev_ymd):  # 주간/월간 등락률 계산을 위해 두 달치를 항상 조회
+            trades = fetch_molit_trades(code, ymd, molit_api_key)
+            for t in trades:
+                t["gu"] = gu
+                _add_deal_dt(t)
+            all_trades.extend(trades)
 
     if not all_trades:
         log.error("서울 실거래가 데이터를 하나도 가져오지 못했습니다.")
         return None
+
+    gu_rankings = build_gu_rankings(all_trades, now)
 
     all_trades.sort(key=lambda x: x["amount_manwon"], reverse=True)
     top30 = []
@@ -1147,6 +1236,7 @@ def build_seoul_estate_data(molit_api_key):
     return {
         "top30": top30,
         "core": core_dedup,
+        "gu_rankings": gu_rankings,
         "market_date": kst_date_label(),
         "news": None,  # run_seoul_estate_mode()에서 채움
     }
