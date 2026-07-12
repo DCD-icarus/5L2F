@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추천 투자 명저</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .glow-card {
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
+            transition: all 0.25s ease;
+        }
+        .glow-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 35px -12px rgba(0, 0, 0, 0.45);
+        }
+        .book-cover {
+            aspect-ratio: 3 / 4.2;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+        }
+        .filter-chip {
+            font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 9999px;
+            border: 1px solid #d8c69c; color: #6b5f48; background: transparent; cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .filter-chip:hover { background: rgba(216,198,156,0.3); }
+        .filter-chip.active { background: #1f6d68; color: white; border-color: #1f6d68; }
+            body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+    </style>
+</head>
+<body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-amber-500 to-[#1e3a5f] p-2 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
+                    <i class="fa-solid fa-book text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-[#16283d] to-[#3d5268] bg-clip-text text-transparent">추천 투자 명저</h1>
+                    <p class="text-[10px] text-[#6b5f48] uppercase tracking-widest font-semibold">Curated Investment Reading List</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-[#1c2f45]">엄선한 재테크 · 투자 필독서</h2>
+            <p class="text-sm text-[#5f5340] mt-1">직접 읽고 도움이 되었던 책들을 소개합니다.</p>
+        </div>
+
+        <div class="mb-6 space-y-3">
+            <div class="relative max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a7c60] text-sm"></i>
+                <input id="search-input" type="text" placeholder="제목, 저자로 검색"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[#d8c69c] bg-[#efe4cd]/40 text-sm text-[#1c2f45] placeholder-[#8a7c60] focus:outline-none focus:ring-2 focus:ring-[#1f6d68]/40"
+                    oninput="applyFilters()">
+            </div>
+            <div class="flex flex-wrap gap-2 items-center">
+                <span class="text-xs font-bold text-[#6b5f48] mr-1">카테고리</span>
+                <button class="filter-chip cat-chip active" data-value="전체" onclick="setFilter('cat','전체',this)">전체</button>
+                <button class="filter-chip cat-chip" data-value="주식" onclick="setFilter('cat','주식',this)">주식</button>
+                <button class="filter-chip cat-chip" data-value="부동산" onclick="setFilter('cat','부동산',this)">부동산</button>
+                <button class="filter-chip cat-chip" data-value="경제일반" onclick="setFilter('cat','경제일반',this)">경제일반</button>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center">
+                <span class="text-xs font-bold text-[#6b5f48] mr-1">난이도</span>
+                <button class="filter-chip lvl-chip active" data-value="전체" onclick="setFilter('lvl','전체',this)">전체</button>
+                <button class="filter-chip lvl-chip" data-value="입문" onclick="setFilter('lvl','입문',this)">입문</button>
+                <button class="filter-chip lvl-chip" data-value="중급" onclick="setFilter('lvl','중급',this)">중급</button>
+                <button class="filter-chip lvl-chip" data-value="고급" onclick="setFilter('lvl','고급',this)">고급</button>
+            </div>
+        </div>
+
+        <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- JS Dynamic -->
+        </div>
+        <p id="no-results" class="text-sm text-[#6b5f48] text-center py-10 hidden">조건에 맞는 책이 없습니다.</p>
+    </main>
+
+    <footer class="border-t border-[#d8c69c]/60 py-6 mt-10">
+        <div class="max-w-4xl mx-auto px-4 text-center mb-4">
+            <p class="text-[10px] text-[#8a7c60] leading-relaxed">
+                &copy; 2026 5L2F. All rights reserved. 본 사이트의 모든 콘텐츠(텍스트, 디자인, 데이터 구성)의 저작권은 5L2F에 있으며 무단 복제·전재·재배포를 금합니다.<br>
+                본 콘텐츠는 정보 제공 목적의 참고자료이며, 정확성·완전성을 보장하지 않습니다. 투자 판단을 위한 권유나 자문이 아니며, 투자 결정과 결과에 대한 책임은 이용자 본인에게 있습니다.
+            </p>
+        </div>
+        <p class="text-center text-[11px] text-[#9c8f74]">본 페이지의 도서 구매 링크는 제휴(수수료) 링크를 포함할 수 있습니다.</p>
+    </footer>
+
+    <script>
+        // ---------------------------------------------------------------
+        // 아래 배열에 책을 추가/수정/삭제하면 됩니다. (신규 항목은 맨 위에 추가 권장)
+        // category: "주식" | "부동산" | "경제일반"
+        // level: "입문" | "중급" | "고급"
+        // buyLink: 나중에 쿠팡파트너스 / 알라딘TTB / 예스24 제휴 링크로 교체하세요.
+        // cover: 표지 이미지 URL (알라딘·교보문고 상품페이지에서 이미지 주소 복사 가능)
+        //        비워두면 기본 아이콘이 표시됩니다.
+        // ---------------------------------------------------------------
+        const BOOKS_DATA = [
+            {
+                title: "[예시] 책 제목을 입력하세요",
+                author: "저자명",
+                publisher: "출판사 · 출간년도",
+                category: "주식",
+                level: "입문",
+                cover: "",
+                description: "이 책을 추천하는 이유를 2~3문장으로 적어주세요. 실제 항목으로 교체 전까지는 예시로 표시됩니다.",
+                tags: ["예시", "교체필요"],
+                buyLink: "#",
+            },
+            {
+                title: "[예시] 두 번째 추천 도서",
+                author: "저자명",
+                publisher: "출판사 · 출간년도",
+                category: "부동산",
+                level: "중급",
+                cover: "",
+                description: "직접 읽고 느낀 핵심 인사이트나 어떤 독자에게 추천하는지를 적어주면 좋습니다.",
+                tags: ["예시", "교체필요"],
+                buyLink: "#",
+            },
+            {
+                title: "[예시] 세 번째 추천 도서",
+                author: "저자명",
+                publisher: "출판사 · 출간년도",
+                category: "경제일반",
+                level: "고급",
+                cover: "",
+                description: "구매 링크(buyLink)는 나중에 제휴 링크로 바꾸면 클릭 시 바로 구매 페이지로 연결됩니다.",
+                tags: ["예시", "교체필요"],
+                buyLink: "#",
+            },
+        ];
+
+        const activeFilter = { cat: '전체', lvl: '전체', q: '' };
+
+        function setFilter(kind, value, btn) {
+            activeFilter[kind] = value;
+            const cls = kind === 'cat' ? '.cat-chip' : '.lvl-chip';
+            document.querySelectorAll(cls).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            activeFilter.q = document.getElementById('search-input').value.trim().toLowerCase();
+            renderFiltered();
+        }
+
+        const LEVEL_BADGE = {
+            "입문": "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+            "중급": "bg-amber-500/10 text-amber-600 border-amber-500/20",
+            "고급": "bg-rose-500/10 text-rose-500 border-rose-500/20",
+        };
+
+        function renderFiltered() {
+            const filtered = BOOKS_DATA.filter(book => {
+                if (activeFilter.cat !== '전체' && book.category !== activeFilter.cat) return false;
+                if (activeFilter.lvl !== '전체' && book.level !== activeFilter.lvl) return false;
+                if (activeFilter.q) {
+                    const hay = `${book.title} ${book.author}`.toLowerCase();
+                    if (!hay.includes(activeFilter.q)) return false;
+                }
+                return true;
+            });
+
+            const grid = document.getElementById('book-grid');
+            const noResults = document.getElementById('no-results');
+            grid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            }
+            noResults.classList.add('hidden');
+
+            filtered.forEach(book => {
+                const coverHtml = book.cover
+                    ? `<img src="${book.cover}" alt="${book.title}" class="w-full h-full object-cover">`
+                    : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-book-open text-3xl text-[#5c503c]"></i></div>`;
+                const tagsHtml = (book.tags || []).map(t =>
+                    `<span class="text-[10px] bg-[#1f6d68]/10 text-[#1f6d68] px-2 py-0.5 rounded border border-[#1f6d68]/20 font-bold mr-1">${t}</span>`
+                ).join('');
+                const levelBadge = LEVEL_BADGE[book.level] || LEVEL_BADGE["입문"];
+                grid.innerHTML += `
+                    <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-5 glow-card flex flex-col">
+                        <div class="flex gap-4">
+                            <div class="book-cover w-20 rounded-lg overflow-hidden border border-[#d8c69c] shrink-0">${coverHtml}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold ${levelBadge}">${book.level || ''}</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold bg-[#8a7c60]/10 text-[#6b5f48] border-[#8a7c60]/20">${book.category || ''}</span>
+                                </div>
+                                <h3 class="font-bold text-sm text-[#1c2f45] leading-snug">${book.title}</h3>
+                                <p class="text-xs text-[#5f5340] mt-1">${book.author}</p>
+                                <p class="text-[11px] text-[#6b5f48] mt-0.5">${book.publisher}</p>
+                                <div class="mt-2">${tagsHtml}</div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-[#5f5340] leading-relaxed mt-4 flex-grow">${book.description}</p>
+                        <a href="${book.buyLink}" target="_blank" class="mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-bold bg-[#1e3a5f] hover:bg-[#153050] text-white rounded-lg py-2.5 transition-colors">
+                            <i class="fa-solid fa-cart-shopping"></i> 구매하러 가기
+                        </a>
+                    </div>
+                `;
+            });
+        }
+
+        function render() {
+            renderFiltered();
+        }
+
+        window.onload = render;
+    </script>
+
+    <script>
+        // 저작권 보호를 위한 최소한의 억지 장치입니다. 캡처/개발자도구/네트워크 확인 등
+        // 기술적으로 우회 가능한 방법까지 막을 수는 없으며, 실질적 보호는 저작권 표시와
+        // 법적 조치입니다.
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            const blocked = e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+                (e.ctrlKey && (e.key === 'u' || e.key === 's'));
+            if (blocked) e.preventDefault();
+        });
+    </script>
+</body>
+</html>

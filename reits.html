@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대한민국 주요 상장 리츠 및 인프라 대시보드</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .glow-card {
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glow-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
+        }
+            body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+    </style>
+</head>
+<body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
+                    <i class="fa-solid fa-building text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-[#16283d] to-[#3d5268] bg-clip-text text-transparent">K-REITs EXPLORER</h1>
+                    <p class="text-[10px] text-[#6b5f48] uppercase tracking-widest font-semibold">Listed Real Estate Trust Engine</p>
+                </div>
+            </div>
+            
+            <span class="text-xs text-[#5f5340] font-mono"><i class="fa-regular fa-clock mr-1"></i>KST 16:00 PM DAILY</span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
+        <!-- Title & Time -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between pb-4 border-b border-[#d8c69c]/50 gap-4">
+            <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    상장 리츠 및 인프라펀드 자동 연동형 대시보드
+                </span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#16283d] tracking-tight mt-2">상장 리츠 및 인프라펀드 종합 시황판</h2>
+                <p class="text-sm text-[#5f5340] mt-1">맥쿼리인프라, 발해인프라를 포함한 24대 위탁관리리츠/인프라 종목을 시가총액 내림차순 정렬했습니다.</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-[#6b5f48] font-medium">거래일자 기준</p>
+                <p class="text-sm font-bold text-[#3a4d61]"><i class="fa-regular fa-calendar-check mr-1.5 text-[#1f6d68]"></i><span id="reits-date">-</span></p>
+            </div>
+        </div>
+
+        <!-- 1. 핵심 리츠 부동산 인프라 ETF 2대장 (가장 상단 배치) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- ETF 1 -->
+            <div class="bg-gradient-to-br from-[#efe4cd]/80 to-[#f7f1e3]/60 border border-[#d8c69c] p-6 rounded-2xl glow-card flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 font-bold">대표 주거/인프라 연합</span>
+                    <h3 class="text-xl font-bold text-[#16283d] mt-1.5"><a id="etf-0-name" href="#" target="_blank" class="hover:underline hover:text-rose-400">TIGER 리츠부동산인프라</a></h3>
+                    <p class="text-xs text-[#5f5340] mt-0.5">시가총액: <span class="text-[#233a54] font-semibold" id="etf-0-cap">-</span> | 예상 배당률: <span class="text-emerald-400 font-bold" id="etf-0-yield">-</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-black text-[#1c2f45] font-mono" id="etf-0-price">-</p>
+                    <p class="text-xs font-bold text-blue-500" id="etf-0-change">-</p>
+                </div>
+            </div>
+
+            <!-- ETF 2 -->
+            <div class="bg-gradient-to-br from-[#efe4cd]/80 to-[#f7f1e3]/60 border border-[#d8c69c] p-6 rounded-2xl glow-card flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] bg-[#1f6d68]/10 text-[#1f6d68] px-2 py-0.5 rounded border border-[#1f6d68]/20 font-bold">국내 하이 배당 최강전</span>
+                    <h3 class="text-xl font-bold text-[#16283d] mt-1.5"><a id="etf-1-name" href="#" target="_blank" class="hover:underline hover:text-[#1f6d68]">KODEX 한국부동산리츠</a></h3>
+                    <p class="text-xs text-[#5f5340] mt-0.5">시가총액: <span class="text-[#233a54] font-semibold" id="etf-1-cap">-</span> | 예상 배당률: <span class="text-emerald-400 font-bold" id="etf-1-yield">-</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-black text-[#1c2f45] font-mono" id="etf-1-price">-</p>
+                    <p class="text-xs font-bold text-blue-500" id="etf-1-change">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 위탁관리리츠 22종 + 2대 인프라 자산 리스트 -->
+        <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+            <h3 class="font-bold text-lg text-[#1c2f45] mb-4"><i class="fa-solid fa-hotel text-emerald-400 mr-2.5"></i>24대 상장 위탁관리리츠 및 인프라펀드 시세 (시총 크기순 정렬)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-[#d8c69c] text-[11px] text-[#6b5f48] font-bold uppercase tracking-wider">
+                            <th class="py-3 px-3">종목명</th>
+                            <th class="py-3 px-3 text-right">마감종가</th>
+                            <th class="py-3 px-3 text-right">대비 변동</th>
+                            <th class="py-3 px-3 text-right">시가총액</th>
+                            <th class="py-3 px-3 text-right">시가배당률</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assets-tbody" class="divide-y divide-[#d8c69c]/30 font-semibold">
+                        <!-- JS Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. 실시간 전자공시 & 24H 리츠 주요 뉴스 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- DART 전자공시 -->
+            <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+                <div class="flex items-center justify-between pb-4 border-b border-[#d8c69c]/50 mb-4">
+                    <h3 class="font-bold text-base text-[#233a54] flex items-center"><i class="fa-solid fa-file-invoice text-rose-500 mr-2.5"></i>DART 당일 실시간 핵심 공시 추적</h3>
+                    <span class="text-[10px] text-[#6b5f48] font-mono" id="reits-disclosure-updated">-</span>
+                </div>
+                <div class="space-y-4 max-h-[520px] overflow-y-auto pr-1" id="disclosure-container">
+                    <!-- JS Dynamic -->
+                </div>
+            </div>
+
+            <!-- 주요 뉴스 브리핑 -->
+            <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-base text-[#233a54] mb-4"><i class="fa-regular fa-newspaper text-[#1f6d68] mr-2.5"></i>리츠&인프라 관련 뉴스</h3>
+                    <div class="space-y-4" id="news-container">
+                        <!-- JS Dynamic -->
+                    </div>
+                </div>
+                <div class="text-[10px] text-[#6b5f48] pt-4 border-t border-[#d8c69c]/50">
+                    * 리츠 마켓 종합 헤드라인 요약
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#d8c69c]/80 bg-[#efe4cd]/40 py-6">
+        <div class="max-w-4xl mx-auto px-4 text-center mb-4">
+            <p class="text-[10px] text-[#8a7c60] leading-relaxed">
+                &copy; 2026 5L2F. All rights reserved. 본 사이트의 모든 콘텐츠(텍스트, 디자인, 데이터 구성)의 저작권은 5L2F에 있으며 무단 복제·전재·재배포를 금합니다.<br>
+                본 콘텐츠는 정보 제공 목적의 참고자료이며, 정확성·완전성을 보장하지 않습니다. 투자 판단을 위한 권유나 자문이 아니며, 투자 결정과 결과에 대한 책임은 이용자 본인에게 있습니다.
+            </p>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-xs text-[#6b5f48]">출처: 한국리츠협회(KAREIT) 공정 정보 및 DART 수집 엔진 데이터베이스 연계</p>
+            <p class="text-xs text-[#6b5f48]">&copy; 2026 5L2F. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- REITS_DATA_START ---
+        const marketData = {
+            "etfs": [
+                        {
+                                    "name": "TIGER 리츠부동산인프라",
+                                    "price": "4,385원",
+                                    "change": "-15원",
+                                    "pct": "-0.34%",
+                                    "cap": "3,420억",
+                                    "yield": "7.45%"
+                        },
+                        {
+                                    "name": "KODEX 한국부동산리츠",
+                                    "price": "4,850원",
+                                    "change": "-20원",
+                                    "pct": "-0.41%",
+                                    "cap": "1,120억",
+                                    "yield": "6.95%"
+                        }
+            ],
+            "assets": [
+                        {
+                                    "name": "맥쿼리인프라펀드",
+                                    "price": "11,820원",
+                                    "change": "-30원",
+                                    "cap": "5조 2,410억",
+                                    "yield": "6.55%"
+                        },
+                        {
+                                    "name": "SK리츠",
+                                    "price": "4,350원",
+                                    "change": "-15원",
+                                    "cap": "1조 1,240억",
+                                    "yield": "7.20%"
+                        },
+                        {
+                                    "name": "롯데리츠",
+                                    "price": "3,250원",
+                                    "change": "-10원",
+                                    "cap": "8,420억",
+                                    "yield": "8.45%"
+                        },
+                        {
+                                    "name": "제이알글로벌리츠",
+                                    "price": "3,140원",
+                                    "change": "-5원",
+                                    "cap": "6,210억",
+                                    "yield": "9.15%"
+                        },
+                        {
+                                    "name": "신한알파리츠",
+                                    "price": "6,120원",
+                                    "change": "-20원",
+                                    "cap": "5,840억",
+                                    "yield": "6.10%"
+                        },
+                        {
+                                    "name": "ESR켄달스퀘어리츠",
+                                    "price": "3,850원",
+                                    "change": "-10원",
+                                    "cap": "5,120억",
+                                    "yield": "6.25%"
+                        },
+                        {
+                                    "name": "KB발해인프라펀드",
+                                    "price": "8,120원",
+                                    "change": "-40원",
+                                    "cap": "4,850억",
+                                    "yield": "7.30%"
+                        },
+                        {
+                                    "name": "코람코라이프인프라리츠",
+                                    "price": "4,820원",
+                                    "change": "-5원",
+                                    "cap": "4,320억",
+                                    "yield": "7.80%"
+                        },
+                        {
+                                    "name": "디앤디플랫폼리츠",
+                                    "price": "3,120원",
+                                    "change": "-10원",
+                                    "cap": "3,840억",
+                                    "yield": "8.20%"
+                        },
+                        {
+                                    "name": "이리츠코크렙",
+                                    "price": "4,520원",
+                                    "change": "-15원",
+                                    "cap": "3,210억",
+                                    "yield": "7.95%"
+                        },
+                        {
+                                    "name": "한화리츠",
+                                    "price": "4,850원",
+                                    "change": "-10원",
+                                    "cap": "2,980억",
+                                    "yield": "8.10%"
+                        },
+                        {
+                                    "name": "KB스타리츠",
+                                    "price": "3,450원",
+                                    "change": "-5원",
+                                    "cap": "2,850억",
+                                    "yield": "8.40%"
+                        },
+                        {
+                                    "name": "삼성FN리츠",
+                                    "price": "4,920원",
+                                    "change": "-20원",
+                                    "cap": "2,450억",
+                                    "yield": "6.80%"
+                        },
+                        {
+                                    "name": "미래에셋글로벌리츠",
+                                    "price": "2,850원",
+                                    "change": "0원",
+                                    "cap": "2,210억",
+                                    "yield": "8.85%"
+                        },
+                        {
+                                    "name": "신한글로벌액티브리츠",
+                                    "price": "2,950원",
+                                    "change": "-15원",
+                                    "cap": "1,980억",
+                                    "yield": "9.40%"
+                        },
+                        {
+                                    "name": "신한서부티엔디리츠",
+                                    "price": "2,840원",
+                                    "change": "-5원",
+                                    "cap": "1,840억",
+                                    "yield": "8.60%"
+                        },
+                        {
+                                    "name": "마스턴프리미어리츠",
+                                    "price": "2,420원",
+                                    "change": "-10원",
+                                    "cap": "1,620억",
+                                    "yield": "9.80%"
+                        },
+                        {
+                                    "name": "코람코더원리츠",
+                                    "price": "4,125원",
+                                    "change": "-15원",
+                                    "cap": "1,480억",
+                                    "yield": "7.50%"
+                        },
+                        {
+                                    "name": "NH올원리츠",
+                                    "price": "2,910원",
+                                    "change": "-5원",
+                                    "cap": "1,320억",
+                                    "yield": "8.35%"
+                        },
+                        {
+                                    "name": "미래에셋맵스리츠",
+                                    "price": "2,680원",
+                                    "change": "0원",
+                                    "cap": "1,180억",
+                                    "yield": "8.25%"
+                        },
+                        {
+                                    "name": "이지스밸류플러스리츠",
+                                    "price": "4,320원",
+                                    "change": "-10원",
+                                    "cap": "1,080억",
+                                    "yield": "8.15%"
+                        },
+                        {
+                                    "name": "이지스레지던스리츠",
+                                    "price": "3,420원",
+                                    "change": "-5원",
+                                    "cap": "980억",
+                                    "yield": "7.90%"
+                        },
+                        {
+                                    "name": "NH프라임리츠",
+                                    "price": "3,820원",
+                                    "change": "-10원",
+                                    "cap": "840억",
+                                    "yield": "7.10%"
+                        },
+                        {
+                                    "name": "대신밸류리츠",
+                                    "price": "4,150원",
+                                    "change": "-20원",
+                                    "cap": "720억",
+                                    "yield": "7.40%"
+                        }
+            ],
+            "disclosures": [
+                        {
+                                    "name": "맥쿼리인프라펀드",
+                                    "title": "분기 영업보고서 제출 및 분배금 확정 안내",
+                                    "date": "2026-07-03 15:42",
+                                    "link": "https://dart.fss.or.kr/dsbid001/main.do?query=%EB%A7%A5%EC%BF%BC%EB%A6%AC%EC%9D%B8%ED%94%84%EB%9D%BC"
+                        },
+                        {
+                                    "name": "SK리츠",
+                                    "title": "제15기 결산 정기주주총회 소집 결의 공시",
+                                    "date": "2026-07-03 14:15",
+                                    "link": "https://dart.fss.or.kr/dsbid001/main.do?query=SK%EB%A6%AC%EC%B8%A0"
+                        },
+                        {
+                                    "name": "신한알파리츠",
+                                    "title": "용산 더프라임 타워 지분 추가 취득 및 자금 차입 신고",
+                                    "date": "2026-07-03 11:30",
+                                    "link": "https://dart.fss.or.kr/dsbid001/main.do?query=%EC%8B%A0%ED%95%9C%EC%95%8C%ED%8C%8C%EB%A6%AC%EC%B8%A0"
+                        }
+            ]
+};
+        // --- REITS_DATA_END ---
+
+        function renderReits() {
+            document.getElementById('reits-date').innerText = marketData.market_date || '-';
+            document.getElementById('reits-disclosure-updated').innerText = (marketData.market_date || '') + ' 기준 공시';
+
+            // 상단 ETF 랜더링
+            const t = marketData.etfs[0];
+            document.getElementById('etf-0-price').innerText = t.price;
+            document.getElementById('etf-0-change').innerText = `${t.change} (${t.pct})`;
+            document.getElementById('etf-0-cap').innerText = t.cap;
+            document.getElementById('etf-0-yield').innerText = t.yield;
+            if (t.link) document.getElementById('etf-0-name').href = t.link;
+
+            const k = marketData.etfs[1];
+            document.getElementById('etf-1-price').innerText = k.price;
+            document.getElementById('etf-1-change').innerText = `${k.change} (${k.pct})`;
+            document.getElementById('etf-1-cap').innerText = k.cap;
+            document.getElementById('etf-1-yield').innerText = k.yield;
+            if (k.link) document.getElementById('etf-1-name').href = k.link;
+
+            // 24대 상장자산 렌더링 (시총 내림차순)
+            const tbody = document.getElementById('assets-tbody');
+            tbody.innerHTML = '';
+            marketData.assets.forEach(asset => {
+                const isDown = asset.change.startsWith('-');
+                const textCol = isDown ? 'text-blue-400' : (asset.change === "0원" ? 'text-[#5f5340]' : 'text-red-400');
+                const sign = isDown ? '▼' : (asset.change === "0원" ? '' : '▲');
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#efe4cd]/20 border-b border-[#d8c69c]/20">
+                        <td class="py-3 px-3 text-[#1c2f45] font-bold">${asset.link ? `<a href="${asset.link}" target="_blank" class="hover:underline hover:text-rose-400">${asset.name}</a>` : asset.name}</td>
+                        <td class="py-3 px-3 text-right font-mono text-[#233a54]">${asset.price}</td>
+                        <td class="py-3 px-3 text-right font-mono ${textCol}">${sign} ${asset.change.replace('-','')}</td>
+                        <td class="py-3 px-3 text-right font-mono text-[#5f5340]">${asset.cap}</td>
+                        <td class="py-3 px-3 text-right font-mono text-emerald-400 font-bold">${asset.yield}</td>
+                    </tr>
+                `;
+            });
+
+            // 실시간 전자공시 바인딩
+            const dContainer = document.getElementById('disclosure-container');
+            dContainer.innerHTML = '';
+            if (marketData.disclosures.length === 0) {
+                dContainer.innerHTML = '<p class="text-xs text-[#6b5f48] text-center py-6">해당일 공시가 없습니다.</p>';
+            } else {
+                marketData.disclosures.forEach(disc => {
+                    dContainer.innerHTML += `
+                        <div class="bg-[#f7f1e3]/40 p-3 rounded-lg border border-[#d8c69c]/40 hover:border-[#c9b587]/60 transition-all flex justify-between items-start">
+                            <div>
+                                <span class="text-[9px] bg-rose-500/10 text-rose-400 px-1.5 py-0.5 rounded border border-rose-500/20 font-bold">${disc.name}</span>
+                                <h4 class="text-xs font-bold text-[#233a54] mt-1.5">${disc.title}</h4>
+                                <span class="text-[9px] text-[#6b5f48] font-mono mt-1 block">${disc.date}</span>
+                            </div>
+                            <a href="${disc.link}" target="_blank" class="px-2 py-1 rounded bg-[#e2d3ac] text-[9px] font-bold text-[#3a4d61] hover:bg-rose-600 hover:text-white transition-all shrink-0">
+                                <i class="fa-solid fa-file-pdf"></i> DART 보기
+                            </a>
+                        </div>
+                    `;
+                });
+            }
+
+            // 뉴스
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '';
+            (marketData.news || []).forEach(n => {
+                newsContainer.innerHTML += `
+                    <div class="bg-[#f7f1e3]/40 p-3.5 rounded-xl border border-[#d8c69c]/50">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] bg-[#1f6d68]/10 text-[#1f6d68] px-1.5 py-0.5 rounded border border-[#1f6d68]/20 font-bold">${n.source || '뉴스'}</span>
+                            <span class="text-[9px] text-[#6b5f48]">${n.date || ''}</span>
+                        </div>
+                        <h4 class="text-xs font-bold text-[#233a54] mt-1.5">${n.title}</h4>
+                        <a href="${n.link}" target="_blank" class="mt-2 inline-flex items-center text-[10px] text-[#1f6d68] hover:underline">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 원문 기사 보기
+                        </a>
+                    </div>
+                `;
+            });
+            if (!marketData.news || marketData.news.length === 0) {
+                newsContainer.innerHTML = '<p class="text-xs text-[#6b5f48]">표시할 뉴스가 없습니다.</p>';
+            }
+        }
+
+        window.onload = function() {
+            renderReits();
+        };
+    </script>
+
+    <script>
+        // 저작권 보호를 위한 최소한의 억지 장치입니다. 캡처/개발자도구/네트워크 확인 등
+        // 기술적으로 우회 가능한 방법까지 막을 수는 없으며, 실질적 보호는 저작권 표시와
+        // 법적 조치입니다.
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            const blocked = e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+                (e.ctrlKey && (e.key === 'u' || e.key === 's'));
+            if (blocked) e.preventDefault();
+        });
+    </script>
+</body>
+</html>

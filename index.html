@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국 주식시장 · 5L2F</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .glow-card {
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glow-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
+        }
+            body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+    </style>
+</head>
+<body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-[#16283d] to-[#3d5268] bg-clip-text text-transparent">KOREA STOCK MARKET</h1>
+                    <p class="text-[10px] text-[#6b5f48] uppercase tracking-widest font-semibold">KOSPI Real-time Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
+        <!-- Subtitle & Date -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between pb-4 border-b border-[#d8c69c]/50 gap-4">
+            <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    실시간 지표 자동 동조 연동
+                </span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#16283d] tracking-tight mt-2">한국 주식시장 마감 시황</h2>
+                <p class="text-sm text-[#5f5340] mt-1">글로벌 고금리 장기화 우려 및 반도체 수급 리밸런싱에 따른 외국인 차익 매물 대량 출회</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-[#6b5f48] font-medium">자료 기준일</p>
+                <p class="text-sm font-bold text-[#3a4d61]" id="market-date">데이터 수집 대기 중</p>
+            </div>
+        </div>
+
+        <!-- 4대 핵심 매크로 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="macro-grid-container">
+            <!-- JS Dynamic -->
+        </div>
+
+        <!-- KOSPI 추이 차트 + 10대 ETF -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+                <span class="text-xs font-bold text-[#5f5340] uppercase tracking-wider">KOSPI 추이</span>
+                <div class="h-44 mt-4">
+                    <canvas id="kospiSparkline"></canvas>
+                </div>
+            </div>
+
+            <!-- 10대 관심 ETF 표기 -->
+            <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-[#1f6d68] uppercase tracking-wider mb-4"><i class="fa-solid fa-list-check mr-2"></i>10대 관심 ETF</h3>
+                    <div class="space-y-2 max-h-[280px] overflow-y-auto pr-1" id="etf-container">
+                        <!-- JS Dynamic -->
+                    </div>
+                </div>
+                <div class="text-[10px] text-[#6b5f48] mt-4 pt-4 border-t border-[#d8c69c]/50">
+                    실시간 투자 보조지표 거래용 전용 매핑 데이터
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Row: Stocks Table and Opinions -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 20대 대장주 리스트 -->
+            <div class="lg:col-span-8 bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+                <h3 class="font-bold text-lg text-[#1c2f45] mb-4"><i class="fa-solid fa-gem text-amber-400 mr-2"></i>시가총액 상위 20대 대장주 현황</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-[#d8c69c] text-[11px] text-[#6b5f48] font-bold uppercase tracking-wider">
+                                <th class="py-3 px-2">기업명</th>
+                                <th class="py-3 px-2 text-right">마감종가</th>
+                                <th class="py-3 px-2 text-right">전일대비</th>
+                                <th class="py-3 px-2 text-right">등락률</th>
+                                <th class="py-3 px-2 text-right">시가총액</th>
+                                <th class="py-3 px-2 text-right">52주 최저~최고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body" class="divide-y divide-[#d8c69c]/30 font-semibold">
+                            <!-- JS Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 국내 증시 관련 실시간 뉴스 -->
+            <div class="lg:col-span-4 bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-base text-[#233a54] mb-4"><i class="fa-regular fa-newspaper text-[#1f6d68] mr-2"></i>국내 증시 관련 뉴스</h3>
+                    <div class="space-y-4" id="news-container">
+                        <!-- JS Dynamic -->
+                    </div>
+                </div>
+                <div class="text-[10px] text-[#6b5f48] mt-4 pt-4 border-t border-[#d8c69c]/50">
+                    * 네이버 뉴스 검색 결과 기반, 주요 언론사·증권사 리포트 우선
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#d8c69c]/80 bg-[#efe4cd]/40 py-6">
+        <div class="max-w-4xl mx-auto px-4 text-center mb-4">
+            <p class="text-[10px] text-[#8a7c60] leading-relaxed">
+                &copy; 2026 5L2F. All rights reserved. 본 사이트의 모든 콘텐츠(텍스트, 디자인, 데이터 구성)의 저작권은 5L2F에 있으며 무단 복제·전재·재배포를 금합니다.<br>
+                본 콘텐츠는 정보 제공 목적의 참고자료이며, 정확성·완전성을 보장하지 않습니다. 투자 판단을 위한 권유나 자문이 아니며, 투자 결정과 결과에 대한 책임은 이용자 본인에게 있습니다.
+            </p>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-xs text-[#6b5f48]">출처: 한국거래소(KRX) 종합통계 데이터포털 및 네이버 금융 API 동조</p>
+            <p class="text-xs text-[#6b5f48]">&copy; 2026 5L2F. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- KOSPI_DATA_START ---
+        const marketData = {
+            "kospi_index": "2,685.34",
+            "kospi_change": "-31.25",
+            "kospi_pct": "-1.15%",
+            "market_date": "2026년 7월 3일 (금) 장 마감",
+            "etfs": [
+                        {
+                                    "name": "KODEX 200",
+                                    "price": "36,515원",
+                                    "change": "-410원",
+                                    "pct": "-1.11%",
+                                    "trend": "down"
+                        },
+                        {
+                                    "name": "TIGER 코리아TOP10",
+                                    "price": "12,450원",
+                                    "change": "-120원",
+                                    "pct": "-0.95%",
+                                    "trend": "down"
+                        },
+                        {
+                                    "name": "KODEX 반도체",
+                                    "price": "28,340원",
+                                    "change": "-450원",
+                                    "pct": "-1.56%",
+                                    "trend": "down"
+                        },
+                        {
+                                    "name": "TIGER 반도체TOP10",
+                                    "price": "14,250원",
+                                    "change": "-210원",
+                                    "pct": "-1.45%",
+                                    "trend": "down"
+                        },
+                        {
+                                    "name": "KODEX 증권",
+                                    "price": "7,230원",
+                                    "change": "-40원",
+                                    "pct": "-0.55%",
+                                    "trend": "down"
+                        }
+            ],
+            "stocks": [
+                        {
+                                    "name": "삼성전자",
+                                    "price": "75,400",
+                                    "change": "-800",
+                                    "pct": "-1.05%",
+                                    "cap": "450.1조"
+                        },
+                        {
+                                    "name": "SK하이닉스",
+                                    "price": "182,300",
+                                    "change": "-3,100",
+                                    "pct": "-1.67%",
+                                    "cap": "132.7조"
+                        },
+                        {
+                                    "name": "LG에너지솔루션",
+                                    "price": "345,500",
+                                    "change": "+1,500",
+                                    "pct": "+0.44%",
+                                    "cap": "80.8조"
+                        },
+                        {
+                                    "name": "삼성바이오로직스",
+                                    "price": "732,000",
+                                    "change": "-5,000",
+                                    "pct": "-0.68%",
+                                    "cap": "52.1조"
+                        },
+                        {
+                                    "name": "현대차",
+                                    "price": "242,500",
+                                    "change": "+2,000",
+                                    "pct": "+0.83%",
+                                    "cap": "50.8조"
+                        },
+                        {
+                                    "name": "기아",
+                                    "price": "112,400",
+                                    "change": "+900",
+                                    "pct": "+0.81%",
+                                    "cap": "44.8조"
+                        },
+                        {
+                                    "name": "셀트리온",
+                                    "price": "182,100",
+                                    "change": "-1,200",
+                                    "pct": "-0.65%",
+                                    "cap": "39.8조"
+                        },
+                        {
+                                    "name": "KB금융",
+                                    "price": "78,500",
+                                    "change": "-400",
+                                    "pct": "-0.51%",
+                                    "cap": "32.2조"
+                        },
+                        {
+                                    "name": "POSCO홀딩스",
+                                    "price": "365,000",
+                                    "change": "-2,500",
+                                    "pct": "-0.68%",
+                                    "cap": "30.9조"
+                        },
+                        {
+                                    "name": "NAVER",
+                                    "price": "165,400",
+                                    "change": "-1,100",
+                                    "pct": "-0.66%",
+                                    "cap": "26.6조"
+                        }
+            ]
+};
+        // --- KOSPI_DATA_END ---
+
+        let sparklineInstance = null;
+
+        function renderDashboard() {
+            document.getElementById('market-date').innerText = marketData.market_date;
+
+            // 4대 매크로 지표
+            const macroGrid = document.getElementById('macro-grid-container');
+            macroGrid.innerHTML = '';
+            (marketData.macro || []).forEach(item => {
+                const isDown = (item.change || '').startsWith('-');
+                const colorClass = isDown ? 'text-blue-500' : 'text-red-500';
+                macroGrid.innerHTML += `
+                    <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-5 glow-card">
+                        <div class="flex justify-between items-center text-xs text-[#5f5340] font-bold mb-2">
+                            <span>${item.link ? `<a href="${item.link}" target="_blank" class="hover:underline hover:text-[#1f6d68]">${item.name}</a>` : item.name}</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-[#16283d] font-mono">${item.val}</h3>
+                        <p class="text-xs font-bold ${colorClass} mt-1">${isDown ? '▼' : '▲'} ${item.change} (${item.pct})</p>
+                        <p class="text-[10px] text-[#6b5f48] mt-2">52주 ${item.low || '-'} ~ ${item.high || '-'}</p>
+                    </div>
+                `;
+            });
+
+            // ETF
+            const etfContainer = document.getElementById('etf-container');
+            etfContainer.innerHTML = '';
+            marketData.etfs.forEach(etf => {
+                const etfIsDown = etf.change.startsWith('-');
+                const etfColor = etfIsDown ? 'text-blue-400' : 'text-red-400';
+                etfContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-[#f7f1e3]/40 p-2.5 rounded-lg border border-[#d8c69c]/40">
+                        <span class="text-xs font-bold text-[#3a4d61]">${etf.link ? `<a href="${etf.link}" target="_blank" class="hover:underline hover:text-[#1f6d68]">${etf.name}</a>` : etf.name}</span>
+                        <div class="text-right">
+                            <p class="text-xs text-[#1c2f45] font-bold">${etf.price} <span class="text-[#6b5f48] font-normal">(${etf.cap || '-'})</span></p>
+                            <p class="text-[10px] font-semibold ${etfColor}">${etf.change} (${etf.pct})</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 20대 대장주
+            const stockBody = document.getElementById('stock-table-body');
+            stockBody.innerHTML = '';
+            marketData.stocks.forEach(stk => {
+                const stkIsDown = stk.change.startsWith('-');
+                const textCol = stkIsDown ? 'text-blue-400' : 'text-red-400';
+                const symbol = stkIsDown ? '▼' : '▲';
+                stockBody.innerHTML += `
+                    <tr class="hover:bg-[#efe4cd]/20 border-b border-[#d8c69c]/30">
+                        <td class="py-3 px-2 text-[#233a54] font-bold">${stk.link ? `<a href="${stk.link}" target="_blank" class="hover:underline hover:text-[#1f6d68]">${stk.name}</a>` : stk.name}</td>
+                        <td class="py-3 px-2 text-right font-mono text-[#1c2f45]">${stk.price}원</td>
+                        <td class="py-3 px-2 text-right font-mono ${textCol}">${symbol} ${stk.change.replace('+','').replace('-','')}</td>
+                        <td class="py-3 px-2 text-right font-mono ${textCol}">${stk.pct}</td>
+                        <td class="py-3 px-2 text-right font-mono text-[#5f5340]">${stk.cap}</td>
+                        <td class="py-3 px-2 text-right font-mono text-[10px] text-[#6b5f48]">${stk.week52_low || '-'} ~ ${stk.week52_high || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            renderSparkline();
+
+            // 뉴스
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '';
+            (marketData.news || []).forEach(n => {
+                newsContainer.innerHTML += `
+                    <div class="bg-[#f7f1e3]/60 border border-[#d8c69c] p-4 rounded-xl relative">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[9px] bg-[#1f6d68]/10 text-[#1f6d68] px-2 py-0.5 rounded border border-[#1f6d68]/20 font-bold">${n.source || '뉴스'}</span>
+                            <span class="text-[9px] text-[#6b5f48]">${n.date || ''}</span>
+                        </div>
+                        <p class="text-xs text-[#3a4d61] leading-relaxed mt-2">${n.title}</p>
+                        <a href="${n.link}" target="_blank" class="mt-3 inline-flex items-center text-[10px] text-[#1f6d68] hover:underline">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 원문 기사 보기
+                        </a>
+                    </div>
+                `;
+            });
+            if (!marketData.news || marketData.news.length === 0) {
+                newsContainer.innerHTML = '<p class="text-xs text-[#6b5f48]">표시할 뉴스가 없습니다.</p>';
+            }
+        }
+
+        function renderSparkline() {
+            const ctx = document.getElementById('kospiSparkline').getContext('2d');
+            const dataPoints = [2650, 2680, 2710, 2690, 2730, 2750, 2720, 2780, 2810, 2850, 2820, 2790, 2750, 2790, 2840, 2860, 2820, 2780, 2740, 2685.34];
+            
+            if (sparklineInstance) sparklineInstance.destroy();
+
+            const chartColor = 'rgba(59, 130, 246, 1)';
+
+            sparklineInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataPoints.map((_, i) => `W-${20-i}`),
+                    datasets: [{
+                        data: dataPoints,
+                        borderColor: chartColor,
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        backgroundColor: chartColor.replace('1)', '0.05)'),
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            grid: { color: 'rgba(51, 65, 85, 0.2)' },
+                            ticks: { color: '#64748b', font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = function() {
+            renderDashboard();
+        };
+    </script>
+
+    <script>
+        // 저작권 보호를 위한 최소한의 억지 장치입니다. 캡처/개발자도구/네트워크 확인 등
+        // 기술적으로 우회 가능한 방법까지 막을 수는 없으며, 실질적 보호는 저작권 표시와
+        // 법적 조치입니다.
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            const blocked = e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+                (e.ctrlKey && (e.key === 'u' || e.key === 's'));
+            if (blocked) e.preventDefault();
+        });
+    </script>
+</body>
+</html>
