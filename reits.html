@@ -28,36 +28,24 @@
 
     <!-- Header -->
     <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
+                <div class="bg-gradient-to-tr from-rose-500 to-[#1e3a5f] p-2.5 rounded-xl text-white shadow-lg shadow-[#1e3a5f]/20">
                     <i class="fa-solid fa-building text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-[#16283d] to-[#3d5268] bg-clip-text text-transparent">K-REITs EXPLORER</h1>
-                    <p class="text-[10px] text-[#6b5f48] uppercase tracking-widest font-semibold">Listed Real Estate Trust Engine</p>
+                    <h1 class="font-bold text-xl tracking-tight text-[#16283d]">리츠</h1>
+                    <p class="text-xs text-[#5f5340] mt-0.5">국내 상장리츠·인프라펀드 24종목 시세와 DART 공시, 관련 뉴스를 확인합니다.</p>
                 </div>
             </div>
-            
-            <span class="text-xs text-[#5f5340] font-mono"><i class="fa-regular fa-clock mr-1"></i>KST 16:00 PM DAILY</span>
+            <div class="text-left md:text-right">
+                <p class="text-[10px] text-[#6b5f48] font-medium uppercase tracking-wide">거래일자 기준</p>
+                <p class="text-sm font-bold text-[#3a4d61]" id="reits-date">-</p>
+            </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
-        <!-- Title & Time -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between pb-4 border-b border-[#d8c69c]/50 gap-4">
-            <div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    상장 리츠 및 인프라펀드 자동 연동형 대시보드
-                </span>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-[#16283d] tracking-tight mt-2">상장 리츠 및 인프라펀드 종합 시황판</h2>
-                <p class="text-sm text-[#5f5340] mt-1">맥쿼리인프라, 발해인프라를 포함한 24대 위탁관리리츠/인프라 종목을 시가총액 내림차순 정렬했습니다.</p>
-            </div>
-            <div class="text-right">
-                <p class="text-xs text-[#6b5f48] font-medium">거래일자 기준</p>
-                <p class="text-sm font-bold text-[#3a4d61]"><i class="fa-regular fa-calendar-check mr-1.5 text-[#1f6d68]"></i><span id="reits-date">-</span></p>
-            </div>
-        </div>
 
         <!-- 1. 핵심 리츠 부동산 인프라 ETF 2대장 (가장 상단 배치) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -87,10 +75,12 @@
                 </div>
             </div>
         </div>
+        <p class="text-[11px] text-[#8a7c60] -mt-4">* 예상 배당률은 최근 1년 실제 지급 배당 합산 기준 5L2F 자체 추정치이며, 향후 배당컷이나 배당 미지급이 발생할 수 있습니다.</p>
 
         <!-- 2. 위탁관리리츠 22종 + 2대 인프라 자산 리스트 -->
         <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
-            <h3 class="font-bold text-lg text-[#1c2f45] mb-4"><i class="fa-solid fa-hotel text-emerald-400 mr-2.5"></i>24대 상장 위탁관리리츠 및 인프라펀드 시세 (시총 크기순 정렬)</h3>
+            <h3 class="font-bold text-lg text-[#1c2f45] mb-1"><i class="fa-solid fa-hotel text-emerald-400 mr-2.5"></i>24대 상장 위탁관리리츠 및 인프라펀드 시세 (시총 크기순 정렬)</h3>
+            <p class="text-[11px] text-[#8a7c60] mb-4">시가배당률은 최근 1년 실제 지급 배당 합산 기준 5L2F 자체 추정치이며, 향후 배당컷이나 배당 미지급이 발생할 수 있습니다.</p>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
@@ -109,30 +99,25 @@
             </div>
         </div>
 
-        <!-- 3. 실시간 전자공시 & 24H 리츠 주요 뉴스 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- DART 전자공시 -->
-            <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
-                <div class="flex items-center justify-between pb-4 border-b border-[#d8c69c]/50 mb-4">
-                    <h3 class="font-bold text-base text-[#233a54] flex items-center"><i class="fa-solid fa-file-invoice text-rose-500 mr-2.5"></i>DART 당일 실시간 핵심 공시 추적</h3>
-                    <span class="text-[10px] text-[#6b5f48] font-mono" id="reits-disclosure-updated">-</span>
-                </div>
-                <div class="space-y-4 max-h-[520px] overflow-y-auto pr-1" id="disclosure-container">
-                    <!-- JS Dynamic -->
-                </div>
+        <!-- 3. 리츠&인프라 관련 뉴스 (먼저 배치) -->
+        <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+            <h3 class="font-bold text-base text-[#233a54] mb-4"><i class="fa-regular fa-newspaper text-[#1f6d68] mr-2.5"></i>리츠&인프라 관련 뉴스</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="news-container">
+                <!-- JS Dynamic -->
             </div>
+            <div class="text-[10px] text-[#6b5f48] pt-4 mt-2 border-t border-[#d8c69c]/50">
+                * 개별 종목명이 없어도 "상장리츠", "공모인프라펀드", "사모리츠" 등 관련 키워드를 포함한 기사를 함께 보여줍니다.
+            </div>
+        </div>
 
-            <!-- 주요 뉴스 브리핑 -->
-            <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card flex flex-col justify-between">
-                <div>
-                    <h3 class="font-bold text-base text-[#233a54] mb-4"><i class="fa-regular fa-newspaper text-[#1f6d68] mr-2.5"></i>리츠&인프라 관련 뉴스</h3>
-                    <div class="space-y-4" id="news-container">
-                        <!-- JS Dynamic -->
-                    </div>
-                </div>
-                <div class="text-[10px] text-[#6b5f48] pt-4 border-t border-[#d8c69c]/50">
-                    * 리츠 마켓 종합 헤드라인 요약
-                </div>
+        <!-- 4. DART 당일 실시간 핵심 공시 추적 (마지막 배치) -->
+        <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+            <div class="flex items-center justify-between pb-4 border-b border-[#d8c69c]/50 mb-4">
+                <h3 class="font-bold text-base text-[#233a54] flex items-center"><i class="fa-solid fa-file-invoice text-rose-500 mr-2.5"></i>DART 당일 실시간 핵심 공시 추적</h3>
+                <span class="text-[10px] text-[#6b5f48] font-mono" id="reits-disclosure-updated">-</span>
+            </div>
+            <div class="space-y-4 max-h-[520px] overflow-y-auto pr-1" id="disclosure-container">
+                <!-- JS Dynamic -->
             </div>
         </div>
     </main>
@@ -157,401 +142,211 @@
             "etfs": [
                         {
                                     "name": "TIGER 리츠부동산인프라",
-                                    "price": "4,045원",
-                                    "change": "+35원",
-                                    "pct": "+0.87%",
-                                    "cap": "N/A",
-                                    "yield": "9.79%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=329200"
+                                    "price": "4,385원",
+                                    "change": "-15원",
+                                    "pct": "-0.34%",
+                                    "cap": "3,420억",
+                                    "yield": "7.45%"
                         },
                         {
                                     "name": "KODEX 한국부동산리츠",
-                                    "price": "4,290원",
-                                    "change": "+55원",
-                                    "pct": "+1.30%",
-                                    "cap": "4,979억",
-                                    "yield": "8.72%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=476800"
+                                    "price": "4,850원",
+                                    "change": "-20원",
+                                    "pct": "-0.41%",
+                                    "cap": "1,120억",
+                                    "yield": "6.95%"
                         }
             ],
             "assets": [
                         {
-                                    "name": "맥쿼리인프라",
-                                    "code": "088980",
-                                    "price": "10,230원",
-                                    "change": "+200원",
-                                    "cap": "3.6조",
-                                    "yield": "7.14%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=088980"
+                                    "name": "맥쿼리인프라펀드",
+                                    "price": "11,820원",
+                                    "change": "-30원",
+                                    "cap": "5조 2,410억",
+                                    "yield": "6.55%"
                         },
                         {
                                     "name": "SK리츠",
-                                    "code": "395400",
-                                    "price": "5,710원",
-                                    "change": "-60원",
-                                    "cap": "1.7조",
-                                    "yield": "4.66%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=395400"
+                                    "price": "4,350원",
+                                    "change": "-15원",
+                                    "cap": "1조 1,240억",
+                                    "yield": "7.20%"
                         },
                         {
                                     "name": "롯데리츠",
-                                    "code": "330590",
-                                    "price": "3,510원",
-                                    "change": "+60원",
-                                    "cap": "1.0조",
-                                    "yield": "6.84%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=330590"
-                        },
-                        {
-                                    "name": "한화리츠",
-                                    "code": "451800",
-                                    "price": "4,740원",
-                                    "change": "+80원",
-                                    "cap": "8,513억",
-                                    "yield": "5.70%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=451800"
-                        },
-                        {
-                                    "name": "ESR켄달스퀘어리츠",
-                                    "code": "365550",
-                                    "price": "3,300원",
-                                    "change": "+110원",
-                                    "cap": "8,121억",
-                                    "yield": "8.36%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=365550"
-                        },
-                        {
-                                    "name": "신한알파리츠",
-                                    "code": "293940",
-                                    "price": "5,250원",
-                                    "change": "+80원",
-                                    "cap": "6,349억",
-                                    "yield": "6.88%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=293940"
-                        },
-                        {
-                                    "name": "삼성FN리츠",
-                                    "code": "448730",
-                                    "price": "5,340원",
-                                    "change": "+30원",
-                                    "cap": "4,862억",
-                                    "yield": "5.17%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=448730"
-                        },
-                        {
-                                    "name": "코람코더원리츠",
-                                    "code": "417310",
-                                    "price": "10,050원",
-                                    "change": "+160원",
-                                    "cap": "4,060억",
-                                    "yield": "3.52%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=417310"
-                        },
-                        {
-                                    "name": "코람코라이프인프라리츠",
-                                    "code": "357120",
-                                    "price": "4,025원",
-                                    "change": "+5원",
-                                    "cap": "3,918억",
-                                    "yield": "8.12%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=357120"
+                                    "price": "3,250원",
+                                    "change": "-10원",
+                                    "cap": "8,420억",
+                                    "yield": "8.45%"
                         },
                         {
                                     "name": "제이알글로벌리츠",
-                                    "code": "348950",
-                                    "price": "1,182원",
-                                    "change": "+0원",
-                                    "cap": "2,333억",
-                                    "yield": "19.46%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=348950"
+                                    "price": "3,140원",
+                                    "change": "-5원",
+                                    "cap": "6,210억",
+                                    "yield": "9.15%"
                         },
                         {
-                                    "name": "대신밸류리츠",
-                                    "code": "0030R0",
-                                    "price": "3,865원",
-                                    "change": "+15원",
-                                    "cap": "2,310억",
-                                    "yield": "5.67%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=0030R0"
+                                    "name": "신한알파리츠",
+                                    "price": "6,120원",
+                                    "change": "-20원",
+                                    "cap": "5,840억",
+                                    "yield": "6.10%"
                         },
                         {
-                                    "name": "이리츠코크렙",
-                                    "code": "088260",
-                                    "price": "3,425원",
-                                    "change": "+10원",
-                                    "cap": "2,169억",
-                                    "yield": "10.22%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=088260"
+                                    "name": "ESR켄달스퀘어리츠",
+                                    "price": "3,850원",
+                                    "change": "-10원",
+                                    "cap": "5,120억",
+                                    "yield": "6.25%"
                         },
                         {
-                                    "name": "신한서부티엔디리츠",
-                                    "code": "404990",
-                                    "price": "3,615원",
-                                    "change": "-30원",
-                                    "cap": "2,082억",
-                                    "yield": "7.25%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=404990"
+                                    "name": "KB발해인프라펀드",
+                                    "price": "8,120원",
+                                    "change": "-40원",
+                                    "cap": "4,850억",
+                                    "yield": "7.30%"
                         },
                         {
-                                    "name": "이지스밸류플러스리츠",
-                                    "code": "334890",
-                                    "price": "3,435원",
-                                    "change": "+40원",
-                                    "cap": "1,792억",
-                                    "yield": "9.67%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=334890"
+                                    "name": "코람코라이프인프라리츠",
+                                    "price": "4,820원",
+                                    "change": "-5원",
+                                    "cap": "4,320억",
+                                    "yield": "7.80%"
                         },
                         {
                                     "name": "디앤디플랫폼리츠",
-                                    "code": "377190",
-                                    "price": "2,005원",
-                                    "change": "+39원",
-                                    "cap": "1,772억",
-                                    "yield": "11.97%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=377190"
+                                    "price": "3,120원",
+                                    "change": "-10원",
+                                    "cap": "3,840억",
+                                    "yield": "8.20%"
                         },
                         {
-                                    "name": "NH올원리츠",
-                                    "code": "400760",
-                                    "price": "2,970원",
-                                    "change": "+35원",
-                                    "cap": "1,631억",
-                                    "yield": "10.65%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=400760"
+                                    "name": "이리츠코크렙",
+                                    "price": "4,520원",
+                                    "change": "-15원",
+                                    "cap": "3,210억",
+                                    "yield": "7.95%"
+                        },
+                        {
+                                    "name": "한화리츠",
+                                    "price": "4,850원",
+                                    "change": "-10원",
+                                    "cap": "2,980억",
+                                    "yield": "8.10%"
                         },
                         {
                                     "name": "KB스타리츠",
-                                    "code": "432320",
-                                    "price": "1,408원",
-                                    "change": "+15원",
-                                    "cap": "1,556억",
-                                    "yield": "23.16%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=432320"
+                                    "price": "3,450원",
+                                    "change": "-5원",
+                                    "cap": "2,850억",
+                                    "yield": "8.40%"
                         },
                         {
-                                    "name": "이지스레지던스리츠",
-                                    "code": "350520",
-                                    "price": "3,340원",
-                                    "change": "+10원",
-                                    "cap": "1,231억",
-                                    "yield": "8.98%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=350520"
-                        },
-                        {
-                                    "name": "NH프라임리츠",
-                                    "code": "338100",
-                                    "price": "3,840원",
-                                    "change": "+25원",
-                                    "cap": "717억",
-                                    "yield": "19.56%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=338100"
+                                    "name": "삼성FN리츠",
+                                    "price": "4,920원",
+                                    "change": "-20원",
+                                    "cap": "2,450억",
+                                    "yield": "6.80%"
                         },
                         {
                                     "name": "미래에셋글로벌리츠",
-                                    "code": "396690",
-                                    "price": "1,620원",
-                                    "change": "+40원",
-                                    "cap": "642억",
-                                    "yield": "16.36%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=396690"
-                        },
-                        {
-                                    "name": "미래에셋맵스리츠",
-                                    "code": "357250",
-                                    "price": "1,894원",
-                                    "change": "+2원",
-                                    "cap": "473억",
-                                    "yield": "13.15%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=357250"
+                                    "price": "2,850원",
+                                    "change": "0원",
+                                    "cap": "2,210억",
+                                    "yield": "8.85%"
                         },
                         {
                                     "name": "신한글로벌액티브리츠",
-                                    "code": "481850",
-                                    "price": "1,020원",
-                                    "change": "+16원",
-                                    "cap": "443억",
-                                    "yield": "12.75%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=481850"
+                                    "price": "2,950원",
+                                    "change": "-15원",
+                                    "cap": "1,980억",
+                                    "yield": "9.40%"
+                        },
+                        {
+                                    "name": "신한서부티엔디리츠",
+                                    "price": "2,840원",
+                                    "change": "-5원",
+                                    "cap": "1,840억",
+                                    "yield": "8.60%"
                         },
                         {
                                     "name": "마스턴프리미어리츠",
-                                    "code": "357430",
-                                    "price": "773원",
-                                    "change": "+178원",
-                                    "cap": "236억",
-                                    "yield": "20.31%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=357430"
+                                    "price": "2,420원",
+                                    "change": "-10원",
+                                    "cap": "1,620억",
+                                    "yield": "9.80%"
                         },
                         {
-                                    "name": "KB발해인프라",
-                                    "code": "415640",
-                                    "price": "10,940원",
-                                    "change": "+210원",
-                                    "cap": "N/A",
-                                    "yield": "5.94%",
-                                    "link": "https://finance.naver.com/item/main.naver?code=415640"
+                                    "name": "코람코더원리츠",
+                                    "price": "4,125원",
+                                    "change": "-15원",
+                                    "cap": "1,480억",
+                                    "yield": "7.50%"
+                        },
+                        {
+                                    "name": "NH올원리츠",
+                                    "price": "2,910원",
+                                    "change": "-5원",
+                                    "cap": "1,320억",
+                                    "yield": "8.35%"
+                        },
+                        {
+                                    "name": "미래에셋맵스리츠",
+                                    "price": "2,680원",
+                                    "change": "0원",
+                                    "cap": "1,180억",
+                                    "yield": "8.25%"
+                        },
+                        {
+                                    "name": "이지스밸류플러스리츠",
+                                    "price": "4,320원",
+                                    "change": "-10원",
+                                    "cap": "1,080억",
+                                    "yield": "8.15%"
+                        },
+                        {
+                                    "name": "이지스레지던스리츠",
+                                    "price": "3,420원",
+                                    "change": "-5원",
+                                    "cap": "980억",
+                                    "yield": "7.90%"
+                        },
+                        {
+                                    "name": "NH프라임리츠",
+                                    "price": "3,820원",
+                                    "change": "-10원",
+                                    "cap": "840억",
+                                    "yield": "7.10%"
+                        },
+                        {
+                                    "name": "대신밸류리츠",
+                                    "price": "4,150원",
+                                    "change": "-20원",
+                                    "cap": "720억",
+                                    "yield": "7.40%"
                         }
             ],
             "disclosures": [
                         {
-                                    "name": "신한알파리츠",
-                                    "title": "기타경영사항(자율공시)              ",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710800967"
-                        },
-                        {
-                                    "name": "KB발해인프라",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710000432"
-                        },
-                        {
-                                    "name": "KB스타리츠",
-                                    "title": "주주명부폐쇄기간또는기준일설정              ",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710800156"
-                        },
-                        {
-                                    "name": "신한서부티엔디리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710000123"
-                        },
-                        {
-                                    "name": "신한서부티엔디리츠",
-                                    "title": "주식등의대량보유상황보고서(약식)",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710000105"
-                        },
-                        {
-                                    "name": "NH올원리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710000127"
-                        },
-                        {
-                                    "name": "이지스밸류플러스리츠",
-                                    "title": "부동산투자회사자금차입              ",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710800905"
-                        },
-                        {
-                                    "name": "이지스밸류플러스리츠",
-                                    "title": "부동산투자회사증권취득              ",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710800907"
-                        },
-                        {
-                                    "name": "이지스밸류플러스리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260710",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260710000113"
+                                    "name": "맥쿼리인프라펀드",
+                                    "title": "분기 영업보고서 제출 및 분배금 확정 안내",
+                                    "date": "2026-07-03 15:42",
+                                    "link": "https://dart.fss.or.kr/dsbid001/main.do?query=%EB%A7%A5%EC%BF%BC%EB%A6%AC%EC%9D%B8%ED%94%84%EB%9D%BC"
                         },
                         {
                                     "name": "SK리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000571"
-                        },
-                        {
-                                    "name": "롯데리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000581"
+                                    "title": "제15기 결산 정기주주총회 소집 결의 공시",
+                                    "date": "2026-07-03 14:15",
+                                    "link": "https://dart.fss.or.kr/dsbid001/main.do?query=SK%EB%A6%AC%EC%B8%A0"
                         },
                         {
                                     "name": "신한알파리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000582"
-                        },
-                        {
-                                    "name": "ESR켄달스퀘어리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000579"
-                        },
-                        {
-                                    "name": "코람코라이프인프라리츠",
-                                    "title": "부동산투자회사부동산처분              ",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709800597"
-                        },
-                        {
-                                    "name": "코람코라이프인프라리츠",
-                                    "title": "부동산투자회사부동산처분              ",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709800586"
-                        },
-                        {
-                                    "name": "코람코라이프인프라리츠",
-                                    "title": "부동산투자회사자금차입              ",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709800584"
-                        },
-                        {
-                                    "name": "코람코라이프인프라리츠",
-                                    "title": "부동산투자회사자금차입              ",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709800578"
-                        },
-                        {
-                                    "name": "코람코라이프인프라리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000584"
-                        },
-                        {
-                                    "name": "디앤디플랫폼리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000570"
-                        },
-                        {
-                                    "name": "한화리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000576"
-                        },
-                        {
-                                    "name": "삼성FN리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000574"
-                        },
-                        {
-                                    "name": "삼성FN리츠",
-                                    "title": "의결권대리행사권유참고서류",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000098"
-                        },
-                        {
-                                    "name": "삼성FN리츠",
-                                    "title": "주주총회소집공고",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000091"
-                        },
-                        {
-                                    "name": "신한서부티엔디리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000572"
-                        },
-                        {
-                                    "name": "코람코더원리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000573"
-                        },
-                        {
-                                    "name": "이지스밸류플러스리츠",
-                                    "title": "임원ㆍ주요주주특정증권등소유상황보고서",
-                                    "date": "20260709",
-                                    "link": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000583"
+                                    "title": "용산 더프라임 타워 지분 추가 취득 및 자금 차입 신고",
+                                    "date": "2026-07-03 11:30",
+                                    "link": "https://dart.fss.or.kr/dsbid001/main.do?query=%EC%8B%A0%ED%95%9C%EC%95%8C%ED%8C%8C%EB%A6%AC%EC%B8%A0"
                         }
-            ],
-            "news": [],
-            "market_date": "2026년 7월 12일 (일) 기준"
+            ]
 };
         // --- REITS_DATA_END ---
 
