@@ -55,6 +55,30 @@
         pointer-events: none; transition: opacity 0.2s ease;
     }
     .loading.hidden { opacity: 0; }
+
+    /* 모바일: 메뉴는 옆으로 스크롤, 로고는 작게, 프레임 높이 재조정 */
+    @media (max-width: 768px) {
+        .tabbar-inner { padding: 10px 12px; }
+        .brand-logo { height: 64px; }
+        .brand-row { margin-bottom: 6px; }
+        .menu-row {
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            gap: 6px;
+            padding-bottom: 4px;
+        }
+        .menu-row::-webkit-scrollbar { height: 4px; }
+        .menu-row::-webkit-scrollbar-thumb { background: #d8c69c; border-radius: 4px; }
+        .tab-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .tab-btn i { font-size: 12px; }
+        .frame-wrap { height: calc(100vh - 130px); }
+    }
 </style>
 </head>
 <body>
