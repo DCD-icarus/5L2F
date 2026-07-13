@@ -119,6 +119,14 @@ LAWD_CODES = {
     "관악구": "11620", "서초구": "11650", "강남구": "11680", "송파구": "11710", "강동구": "11740",
 }
 
+# 수도권(경기·인천) 핵심 9개 지역 법정동코드. 경기/인천 전역이 아니라 신이사님이
+# 지목하신 핵심 9개 지역만 우선 커버합니다 (전역 확대는 추후 과제).
+GYEONGGI_LAWD_CODES = {
+    "과천시": "41290", "성남시 분당구": "41135", "하남시": "41450", "광명시": "41210",
+    "안양시 동안구": "41173", "용인시 수지구": "41465", "수원시 영통구": "41117",
+    "화성시": "41590", "인천 연수구": "28185",
+}
+
 # 강남권 핵심 단지 16개동 (core 테이블 필터링 기준 - 동 단위)
 # 기존엔 제목은 "8개동"이라 해놓고 실제로는 특정 단지 6개로만 걸러지던 불일치가
 # 있어서, 이번에 진짜 동 단위 필터로 바로잡았습니다.
@@ -401,7 +409,7 @@ def yf_snapshot(ticker, want_dividend=False, want_52w=False, want_name=False, wa
         return None
     try:
         t = yf.Ticker(ticker)
-        hist = t.history(period="1mo" if want_history else "7d")
+        hist = t.history(period="1y" if want_history else "7d")
         hist = hist.dropna(subset=["Close"])
         if len(hist) < 2:
             log.warning(f"{ticker}: 최근 시세 데이터 부족")
@@ -427,7 +435,10 @@ def yf_snapshot(ticker, want_dividend=False, want_52w=False, want_name=False, wa
         if want_sector:
             result["sector"] = _resolve_sector(t)
         if want_history:
-            result["history"] = [round(float(v), 4) for v in hist["Close"].tolist()]
+            result["history"] = [
+                {"date": idx.strftime("%Y-%m-%d"), "close": round(float(v), 4)}
+                for idx, v in zip(hist.index, hist["Close"].tolist())
+            ]
         return result
     except Exception as e:
         log.warning(f"{ticker} 시세 조회 실패: {e}")
@@ -1122,45 +1133,70 @@ def _price_per_pyeong(t):
         return None
 
 
-def build_gu_rankings(all_trades, now):
-    """구별 주간(최근 7일 vs 그 전 7일)·월간(이번달 vs 지난달) 평단가 등락률.
+def _median(vals):
+    s = sorted(vals)
+    n = len(s)
+    if n == 0:
+        return None
+    mid = n // 2
+    return s[mid] if n % 2 == 1 else (s[mid - 1] + s[mid]) / 2
+
+
+MIN_SAMPLE_SIZE = 3  # 이보다 표본이 적으면 등락률을 계산하지 않고 "표본부족" 처리
+
+
+def build_gu_rankings(all_trades, now, group_field="gu"):
+    """구/시별 주간·월간 평단가(중앙값) 등락률.
     한국부동산원의 공식 주택가격동향지수와는 산출방식이 다른, 5L2F가 국토부
-    실거래 데이터로 직접 집계한 자체 지표입니다 (표본이 적은 주에는 변동폭이
-    과장될 수 있어 참고용으로만 활용해주세요)."""
-    week_cut1 = now - timedelta(days=7)
-    week_cut2 = now - timedelta(days=14)
+    실거래 데이터로 직접 집계한 자체 지표입니다.
+
+    두 가지를 특히 신경 썼습니다:
+    ① 평균 대신 중앙값(median) 사용 - 고가 매물 한두 건에 등락률 전체가
+       휘둘리는 것을 방지합니다.
+    ② 실거래 신고는 계약 후 최대 30일 이내 이뤄지는 구조라, '최근 7일'을
+       기준으로 삼으면 아직 신고가 안 들어온 거래가 대부분이라 표본이
+       극도로 적어집니다. 그래서 기준일을 14일 전으로 당겨('14~21일 전' vs
+       '21~28일 전') 대부분의 거래가 이미 신고를 마쳤을 시점끼리 비교합니다.
+    그래도 표본이 3건 미만이면 등락률을 내지 않고 '표본부족'으로 표시합니다."""
+    ref = now - timedelta(days=14)  # 신고 지연을 감안한 기준일
+    week_cut0 = ref
+    week_cut1 = ref - timedelta(days=7)
+    week_cut2 = ref - timedelta(days=14)
     month_start = now.replace(day=1)
     prev_month_end = month_start - timedelta(days=1)
     prev_month_start = prev_month_end.replace(day=1)
 
-    by_gu = {}
+    by_group = {}
     for t in all_trades:
-        by_gu.setdefault(t["gu"], []).append(t)
+        by_group.setdefault(t[group_field], []).append(t)
 
-    def avg_ppp(trades):
+    def median_ppp(trades):
         vals = [v for v in (_price_per_pyeong(t) for t in trades) if v]
-        return (sum(vals) / len(vals), len(vals)) if vals else (None, 0)
+        return (_median(vals), len(vals)) if vals else (None, 0)
 
     rows = []
-    for gu, trades in by_gu.items():
+    for grp, trades in by_group.items():
         with_dt = [t for t in trades if t.get("deal_dt")]
-        this_week = [t for t in with_dt if week_cut1 <= t["deal_dt"] <= now]
+        this_week = [t for t in with_dt if week_cut1 <= t["deal_dt"] <= week_cut0]
         last_week = [t for t in with_dt if week_cut2 <= t["deal_dt"] < week_cut1]
         this_month = [t for t in with_dt if t["deal_dt"] >= month_start]
         last_month = [t for t in with_dt if prev_month_start <= t["deal_dt"] <= prev_month_end]
 
-        tw_avg, tw_n = avg_ppp(this_week)
-        lw_avg, lw_n = avg_ppp(last_week)
-        tm_avg, tm_n = avg_ppp(this_month)
-        lm_avg, lm_n = avg_ppp(last_month)
+        tw_med, tw_n = median_ppp(this_week)
+        lw_med, lw_n = median_ppp(last_week)
+        tm_med, tm_n = median_ppp(this_month)
+        lm_med, lm_n = median_ppp(last_month)
 
-        weekly_pct = ((tw_avg - lw_avg) / lw_avg * 100) if (tw_avg and lw_avg) else None
-        monthly_pct = ((tm_avg - lm_avg) / lm_avg * 100) if (tm_avg and lm_avg) else None
+        weekly_ok = tw_n >= MIN_SAMPLE_SIZE and lw_n >= MIN_SAMPLE_SIZE
+        monthly_ok = tm_n >= MIN_SAMPLE_SIZE and lm_n >= MIN_SAMPLE_SIZE
+
+        weekly_pct = ((tw_med - lw_med) / lw_med * 100) if (weekly_ok and tw_med and lw_med) else None
+        monthly_pct = ((tm_med - lm_med) / lm_med * 100) if (monthly_ok and tm_med and lm_med) else None
 
         rows.append({
-            "gu": gu,
-            "weekly_pct": weekly_pct, "weekly_n": tw_n + lw_n,
-            "monthly_pct": monthly_pct, "monthly_n": tm_n + lm_n,
+            "gu": grp,
+            "weekly_pct": weekly_pct, "weekly_n": min(tw_n, lw_n),
+            "monthly_pct": monthly_pct, "monthly_n": min(tm_n, lm_n),
         })
 
     valid_weekly = [r for r in rows if r["weekly_pct"] is not None]
@@ -1172,8 +1208,8 @@ def build_gu_rankings(all_trades, now):
     def fmt_row(r):
         return {
             "gu": r["gu"],
-            "weekly_pct": f"{'+' if r['weekly_pct'] >= 0 else ''}{r['weekly_pct']:.2f}%" if r["weekly_pct"] is not None else "-",
-            "monthly_pct": f"{'+' if r['monthly_pct'] >= 0 else ''}{r['monthly_pct']:.2f}%" if r["monthly_pct"] is not None else "-",
+            "weekly_pct": f"{'+' if r['weekly_pct'] >= 0 else ''}{r['weekly_pct']:.2f}%" if r["weekly_pct"] is not None else "표본부족",
+            "monthly_pct": f"{'+' if r['monthly_pct'] >= 0 else ''}{r['monthly_pct']:.2f}%" if r["monthly_pct"] is not None else "표본부족",
             "sample_n": r["weekly_n"],
         }
 
@@ -1290,6 +1326,36 @@ COMPLEX_REGISTRY = [
     {"key": "mapo_seongsan", "name": "마포 성산시영", "gu": "마포구", "dong": "성산동", "category": "재건축"},
 ]
 
+# 수도권(경기·인천) 핵심 9개 지역 랜드마크 단지 32곳 - 세대수·시가총액·지역분포를
+# 감안한 5L2F 추천 리스트입니다. 실제 단지명과 다르면 알려주시면 바로 고치겠습니다.
+GYEONGGI_COMPLEX_REGISTRY = [
+    {"key": "gwacheon_summit", "name": "과천 푸르지오써밋", "si": "과천시", "dong": "원문동", "category": "신축"},
+    {"key": "gwacheon_xi", "name": "과천자이", "si": "과천시", "dong": "별양동", "category": "신축"},
+    {"key": "gwacheon_weverfield", "name": "과천 위버필드", "si": "과천시", "dong": "주암동", "category": "신축"},
+    {"key": "pangyo_grandbleu", "name": "판교 푸르지오그랑블", "si": "성남시 분당구", "dong": "판교동", "category": "구축대단지"},
+    {"key": "wirye_central_xi", "name": "위례 센트럴자이", "si": "성남시 분당구", "dong": "위례동", "category": "신축"},
+    {"key": "wirye_lottecastle", "name": "위례 롯데캐슬", "si": "성남시 분당구", "dong": "위례동", "category": "신축"},
+    {"key": "sanseong_redev", "name": "성남 산성동 재개발", "si": "성남시 중원구", "dong": "산성동", "category": "재개발"},
+    {"key": "sinheung_redev", "name": "성남 신흥동 재개발", "si": "성남시 중원구", "dong": "신흥동", "category": "재개발"},
+    {"key": "misa_central_xi", "name": "미사강변 센트럴자이", "si": "하남시", "dong": "망월동", "category": "신축"},
+    {"key": "hanam_pungsan_ipark", "name": "하남 풍산아이파크", "si": "하남시", "dong": "풍산동", "category": "구축대단지"},
+    {"key": "hanam_wirye", "name": "하남 위례신도시", "si": "하남시", "dong": "학암동", "category": "신축"},
+    {"key": "gwangmyeong_areforet", "name": "광명 아크포레자이위브(뉴타운)", "si": "광명시", "dong": "광명동", "category": "신축"},
+    {"key": "gwangmyeong_cheolsan", "name": "광명 철산주공 재건축", "si": "광명시", "dong": "철산동", "category": "재건축"},
+    {"key": "pyeongchon_dshare_ipark", "name": "평촌 더샵아이파크", "si": "안양시 동안구", "dong": "평촌동", "category": "신축"},
+    {"key": "pyeongchon_centum", "name": "평촌 센텀퍼스트 재건축", "si": "안양시 동안구", "dong": "호계동", "category": "재건축"},
+    {"key": "seongbok_lottecastle", "name": "성복역 롯데캐슬골드타운", "si": "용인시 수지구", "dong": "성복동", "category": "신축"},
+    {"key": "sujigucheong_lottecastle", "name": "수지구청역 롯데캐슬에코", "si": "용인시 수지구", "dong": "풍덕천동", "category": "구축대단지"},
+    {"key": "gwanggyo_jungheung", "name": "광교 중흥S클래스", "si": "수원시 영통구", "dong": "이의동", "category": "신축"},
+    {"key": "gwanggyo_hillstate", "name": "광교 자연앤힐스테이트", "si": "수원시 영통구", "dong": "하동", "category": "신축"},
+    {"key": "dongtan_sibeom_unam", "name": "동탄역 시범 우남퍼스트빌", "si": "화성시", "dong": "청계동", "category": "구축대단지"},
+    {"key": "dongtan2_lottecastle", "name": "동탄2신도시 롯데캐슬", "si": "화성시", "dong": "오산동", "category": "신축"},
+    {"key": "dongtan_station_lottecastle", "name": "동탄역 롯데캐슬", "si": "화성시", "dong": "청계동", "category": "신축"},
+    {"key": "songdo_dshare_firstpark", "name": "송도 더샵퍼스트파크", "si": "인천 연수구", "dong": "송도동", "category": "구축대단지"},
+    {"key": "songdo_central_pujio", "name": "송도 센트럴파크 푸르지오", "si": "인천 연수구", "dong": "송도동", "category": "구축대단지"},
+    {"key": "songdo_xi_crystalocean", "name": "송도자이 크리스탈오션", "si": "인천 연수구", "dong": "송도동", "category": "신축"},
+]
+
 
 def _complex_name_variants(name):
     """'방배5구역(디에이치방배)' -> ['방배5구역', '디에이치방배'] 처럼 괄호 별칭을 분리."""
@@ -1401,6 +1467,91 @@ def run_seoul_estate_mode(molit_api_key, naver_id=None, naver_secret=None):
 
     ok = replace_marketdata_block(
         "seoul_estate.html", "// --- SEOUL_ESTATE_DATA_START ---", "// --- SEOUL_ESTATE_DATA_END ---", new_data
+    )
+    return new_data if ok else None
+
+
+# ---------------------------------------------------------------------------
+# 수도권(경기·인천) 핵심 9개 지역 아파트 실거래가
+# ---------------------------------------------------------------------------
+def build_gyeonggi_estate_data(molit_api_key):
+    """서울과 동일한 로직/기준으로 경기·인천 핵심 9개 지역을 집계합니다.
+    전체 경기/인천이 아니라 신이사님이 지목하신 9개 핵심지만 우선 커버합니다."""
+    if not molit_api_key:
+        log.error("MOLIT_API_KEY 미설정 - 수도권 실거래가 조회 불가")
+        return None
+
+    now = datetime.now(KST)
+    deal_ymd = now.strftime("%Y%m")
+    prev_ymd = (now.replace(day=1) - timedelta(days=1)).strftime("%Y%m")
+
+    all_trades = []
+    for si, code in GYEONGGI_LAWD_CODES.items():
+        for ymd in (deal_ymd, prev_ymd):
+            trades = fetch_molit_trades(code, ymd, molit_api_key)
+            for t in trades:
+                t["gu"] = si  # build_gu_rankings/표 렌더링과 필드명을 통일(구 대신 시 단위)
+                _add_deal_dt(t)
+            all_trades.extend(trades)
+
+    if not all_trades:
+        log.error("수도권 실거래가 데이터를 하나도 가져오지 못했습니다.")
+        return None
+
+    si_rankings = build_gu_rankings(all_trades, now, group_field="gu")
+
+    all_trades.sort(key=lambda x: x["amount_manwon"], reverse=True)
+    top30 = []
+    for t in all_trades[:30]:
+        top30.append({
+            "gu": t["gu"], "dong": t["dong"], "apt": t["apt"],
+            "size": f"{float(t['area']):.2f}㎡", "price": _fmt_eok(t["amount_manwon"]),
+            "record": "보통",
+            "link": _naver_land_search_link(t["apt"]),
+        })
+
+    return {
+        "top30": top30,
+        "gu_rankings": si_rankings,
+        "market_date": kst_date_label(),
+        "news": None,  # run_gyeonggi_estate_mode()에서 채움
+        "market_wide_news": None,
+    }
+
+
+def build_gyeonggi_news(naver_id, naver_secret):
+    """수도권 핵심지 랜드마크 단지별로 최대 3건까지 엄격 매칭된 뉴스를 표(행) 단위로 반환."""
+    rows = []
+    for c in GYEONGGI_COMPLEX_REGISTRY:
+        for a in fetch_complex_news(c["name"], naver_id, naver_secret, limit=3):
+            rows.append({
+                "gu": c["si"], "dong": c["dong"], "name": c["name"], "category": c["category"],
+                "title": a["title"], "link": a["link"], "date": a["date"],
+            })
+    log.info(f"수도권 관심단지 뉴스: {len(rows)}건 확보 (단지 {len(GYEONGGI_COMPLEX_REGISTRY)}개 중 관련기사 있는 곳만)")
+    return rows
+
+
+def build_gyeonggi_market_wide_news(naver_id, naver_secret):
+    """경기·인천 및 전국 공통 부동산 시장 뉴스 (서울 단독 이슈는 제외)."""
+    return fetch_naver_news_multi(
+        ["경기도 부동산 시장", "인천 부동산 시장", "전국 부동산 시장 전망"],
+        naver_id, naver_secret, per_query=3, total_cap=5
+    )
+
+
+def run_gyeonggi_estate_mode(molit_api_key, naver_id=None, naver_secret=None):
+    new_data = build_gyeonggi_estate_data(molit_api_key)
+    if new_data is None:
+        replace_marketdata_block("gyeonggi_estate.html", "// --- GYEONGGI_ESTATE_DATA_START ---",
+                                  "// --- GYEONGGI_ESTATE_DATA_END ---", None)
+        return None
+
+    new_data["news"] = build_gyeonggi_news(naver_id, naver_secret)
+    new_data["market_wide_news"] = build_gyeonggi_market_wide_news(naver_id, naver_secret)
+
+    ok = replace_marketdata_block(
+        "gyeonggi_estate.html", "// --- GYEONGGI_ESTATE_DATA_START ---", "// --- GYEONGGI_ESTATE_DATA_END ---", new_data
     )
     return new_data if ok else None
 
@@ -1670,8 +1821,9 @@ def send_kakao_notification(token, mode, data):
     base_url = _dashboard_base_url()
     try:
         if mode == "kospi":
-            title = "KOSPI 마감 시황 보고"
-            summary = f"KOSPI: {data['kospi_index']} ({data['kospi_change']} / {data['kospi_pct']})"
+            title = "한국 주식시장 마감 시황 보고"
+            kospi_macro = next((m for m in data.get("macro", []) if m["name"] == "코스피"), None)
+            summary = f"코스피: {kospi_macro['val']} ({kospi_macro['change']} / {kospi_macro['pct']})" if kospi_macro else "한국 주식시장 업데이트 완료"
             if data.get("stocks"):
                 summary += f"\n1위 {data['stocks'][0]['name']}: {data['stocks'][0]['price']}원"
             target_url = base_url + "index.html"
@@ -1693,6 +1845,12 @@ def send_kakao_notification(token, mode, data):
             if data.get("core"):
                 summary = f"{data['core'][0]['apt']}: {data['core'][0]['price']}"
             target_url = base_url + "seoul_estate.html"
+        elif mode == "gyeonggi_estate":
+            title = "수도권(경기·인천) 부동산 실거래가 분석 보고"
+            summary = "수도권 핵심지 아파트 실거래가 업데이트 완료"
+            if data.get("top30"):
+                summary = f"{data['top30'][0]['apt']}: {data['top30'][0]['price']}"
+            target_url = base_url + "gyeonggi_estate.html"
         elif mode == "rose_watch":
             title = "잠실 장미상가 모니터링 (비공개)"
             n = len(data.get("real_trades", []))
@@ -1954,7 +2112,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode", type=str, required=True,
-        choices=["kospi", "reits", "kospi_reits", "us_market", "seoul_estate", "all"],
+        choices=["kospi", "reits", "kospi_reits", "us_market", "seoul_estate", "gyeonggi_estate", "all"],
         help="실행 모드. 시간 기반 자동추론(auto)은 제거됨 - 워크플로가 명시적으로 전달합니다.",
     )
     args = parser.parse_args()
@@ -1985,6 +2143,11 @@ if __name__ == "__main__":
         d = run_seoul_estate_mode(molit_key, naver_id, naver_secret)
         send_kakao_notification(kakao_token, "seoul_estate", d)
 
+    if mode_to_run in ("gyeonggi_estate", "all"):
+        d = run_gyeonggi_estate_mode(molit_key, naver_id, naver_secret)
+        send_kakao_notification(kakao_token, "gyeonggi_estate", d)
+
+    if mode_to_run in ("seoul_estate", "gyeonggi_estate", "all"):
         send_hub_notification(kakao_token)
 
     log.info("실행 완료")
