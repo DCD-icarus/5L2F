@@ -54,7 +54,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-xl tracking-tight text-[#16283d]">수도권아파트</h1>
-                    <p class="text-xs text-[#5f5340] mt-0.5">경기·인천 핵심 9개 지역의 실거래가 TOP 30, 지역별 등락률, 랜드마크 단지 뉴스를 확인합니다.</p>
+                    <p class="text-xs text-[#5f5340] mt-0.5">경기·인천 전체 실거래가 TOP 20, 시/군/구별 등락률, 9개 핵심지역 현황, 랜드마크 단지 뉴스를 확인합니다.</p>
                 </div>
             </div>
             <div class="text-left md:text-right">
@@ -66,10 +66,22 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-12">
 
-        <!-- [0번째 내용] 수도권 핵심 9개 지역 주간/월간 평단가 등락률 -->
+        <!-- [0번째 내용] 수도권(경기 31개 시/군 + 인천 10개 군구) 주간/월간/YTD 평단가 등락률 -->
         <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
-            <h3 class="font-bold text-lg text-[#1c2f45] mb-1"><i class="fa-solid fa-arrow-trend-up text-[#1f6d68] mr-2.5"></i>수도권 핵심 9개 지역 주간·월간 평단가 등락률 (상승 5 · 하락 5)</h3>
-            <p class="text-[11px] text-[#8a7c60] mb-4">국토부 실거래 데이터를 5L2F가 직접 집계한 자체 지표(중앙값 기준)이며, 한국부동산원 공식 주택가격지수와 산출방식이 다릅니다. 실거래 신고가 계약 후 최대 30일 이내 이뤄지는 점을 감안해 기준일을 14일 전으로 당겨 비교했고, 구별 표본이 3건 미만이면 "표본부족"으로 표시해 왜곡을 줄였습니다.</p>
+            <h3 class="font-bold text-lg text-[#1c2f45] mb-1"><i class="fa-solid fa-arrow-trend-up text-[#1f6d68] mr-2.5"></i>수도권 시/군/구별 주간·월간·YTD 평단가 등락률 (상승 5 · 하락 5)</h3>
+            <p class="text-[11px] text-[#8a7c60] mb-2">경기 31개 시/군 + 인천 10개 군구 전체 기준입니다. 국토부 실거래 데이터를 5L2F가 직접 집계한 자체 지표(중앙값 기준)이며, 한국부동산원 공식 주택가격지수와 산출방식이 다릅니다(연동 검토 중). 실거래 신고가 계약 후 최대 30일 이내 이뤄지는 점을 감안해 기준일을 14일 전으로 당겨 비교했고, 표본이 5건 미만이면 "표본부족"으로 표시해 왜곡을 줄였습니다.</p>
+            <p class="text-[11px] text-[#5f5340] font-semibold mb-4" id="gu-period-label">집계 기간 확인 중...</p>
+
+            <div class="flex items-center gap-2 mb-4">
+                <label class="text-xs font-bold text-[#5f5340]">관심 시/군/구 선택:</label>
+                <select id="gu-select" class="text-xs border border-[#d8c69c] rounded-lg px-3 py-1.5 bg-[#f7f1e3] text-[#3a4d61]" onchange="renderGuDetail()">
+                    <option value="">-- 지역 선택 --</option>
+                </select>
+            </div>
+            <div id="gu-detail-card" class="hidden bg-[#f7f1e3]/60 border border-[#1f6d68]/30 rounded-xl p-4 mb-4">
+                <!-- JS Dynamic -->
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
@@ -77,6 +89,7 @@
                             <th class="py-3 px-3">지역</th>
                             <th class="py-3 px-3 text-right">주간 등락률</th>
                             <th class="py-3 px-3 text-right">월간 등락률</th>
+                            <th class="py-3 px-3 text-right">YTD 등락률</th>
                             <th class="py-3 px-3 text-right">표본수</th>
                         </tr>
                     </thead>
@@ -85,16 +98,37 @@
                     </tbody>
                 </table>
             </div>
-            <p class="text-xs text-[#5f5340] mt-4 pt-3 border-t border-[#d8c69c]/50">9개 지역 평균 주간 등락률: <span id="gu-avg-weekly" class="font-bold text-[#1c2f45]">-</span></p>
+            <p class="text-xs text-[#5f5340] mt-4 pt-3 border-t border-[#d8c69c]/50">전체 지역 평균 주간 등락률: <span id="gu-avg-weekly" class="font-bold text-[#1c2f45]">-</span></p>
         </div>
 
-        <!-- [1번째 내용] 수도권 핵심 9개 지역 아파트 실거래가 TOP 30 (가격 높은 순 정렬) -->
+        <!-- [0.5번째 내용] 9개 핵심지역 실거래가 현황 (전용면적 기준 가격 순 정렬) -->
+        <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
+            <h3 class="font-bold text-lg text-[#1c2f45] mb-1"><i class="fa-solid fa-star text-[#1f6d68] mr-2.5"></i>9개 핵심지역 실거래가 현황 (전용면적 기준 가격 순 정렬)</h3>
+            <p class="text-xs text-[#5f5340] mb-4">과천·분당·하남·광명·평촌·수지·광교·동탄·송도 — 지역별 이번 달 최고가 거래 1건씩</p>
+            <div class="overflow-y-auto max-h-[400px] pr-2">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-[#d8c69c] text-[11px] text-[#6b5f48] font-bold uppercase tracking-wider">
+                            <th class="py-2.5 px-2">지역</th>
+                            <th class="py-2.5 px-2">아파트명</th>
+                            <th class="py-2.5 px-2">전용면적</th>
+                            <th class="py-2.5 px-2 text-right">거래가격</th>
+                        </tr>
+                    </thead>
+                    <tbody id="core-region-tbody" class="divide-y divide-[#d8c69c]/30 font-semibold">
+                        <!-- JS Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- [1번째 내용] 수도권 전체 아파트 실거래가 TOP 20 (가격 높은 순 정렬) -->
         <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#d8c69c]/50">
                 <div>
                     <h3 class="font-bold text-lg text-[#1c2f45] flex items-center">
                         <i class="fa-solid fa-trophy text-amber-400 mr-2.5"></i>
-                        수도권 핵심 9개 지역 아파트 실거래가 TOP 30 (전용면적 기준 가격 순 정렬)
+                        수도권 전체 아파트 실거래가 TOP 20 (전용면적 기준 가격 순 정렬)
                     </h3>
                     <p class="text-xs text-[#5f5340] mt-0.5">국토부 실거래가 공개시스템 및 아실·실까 데이터 100% 교차 검증본</p>
                 </div>
@@ -129,6 +163,18 @@
                     <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>신축(10년 미만)</span>
                     <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#6b5f48]"></span>구축대단지</span>
                 </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+                <select id="news-filter-gu" class="text-xs border border-[#d8c69c] rounded-lg px-3 py-1.5 bg-[#f7f1e3] text-[#3a4d61]" onchange="applyNewsFilter()">
+                    <option value="">전체 지역</option>
+                </select>
+                <select id="news-filter-dong" class="text-xs border border-[#d8c69c] rounded-lg px-3 py-1.5 bg-[#f7f1e3] text-[#3a4d61]" onchange="applyNewsFilter()">
+                    <option value="">전체 동</option>
+                </select>
+                <select id="news-filter-name" class="text-xs border border-[#d8c69c] rounded-lg px-3 py-1.5 bg-[#f7f1e3] text-[#3a4d61]" onchange="applyNewsFilter()">
+                    <option value="">전체 단지</option>
+                </select>
+                <button onclick="resetNewsFilter()" class="text-xs text-[#1f6d68] font-bold hover:underline">필터 초기화</button>
             </div>
             <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl overflow-hidden">
                 <div class="grid grid-cols-[15%_15%_25%_45%] gap-2 px-4 py-2.5 text-[10px] text-[#6b5f48] font-bold uppercase border-b border-[#d8c69c] bg-[#f7f1e3]/60">
@@ -174,441 +220,56 @@
             "top30": [
                         {
                                     "gu": "성남시 분당구",
-                                    "dong": "정자동",
-                                    "apt": "파크뷰",
-                                    "size": "182.23㎡",
-                                    "price": "36억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%8C%8C%ED%81%AC%EB%B7%B0"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "운중동",
-                                    "apt": "산운마을14단지(경남아너스빌)",
-                                    "size": "184.60㎡",
-                                    "price": "34억 7,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%82%B0%EC%9A%B4%EB%A7%88%EC%9D%8414%EB%8B%A8%EC%A7%80%28%EA%B2%BD%EB%82%A8%EC%95%84%EB%84%88%EC%8A%A4%EB%B9%8C%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "삼평동",
-                                    "apt": "봇들마을7단지",
-                                    "size": "108.15㎡",
-                                    "price": "33억 3,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B4%87%EB%93%A4%EB%A7%88%EC%9D%847%EB%8B%A8%EC%A7%80"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "중앙동",
-                                    "apt": "과천푸르지오써밋",
-                                    "size": "120.96㎡",
-                                    "price": "32억 1,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%ED%91%B8%EB%A5%B4%EC%A7%80%EC%98%A4%EC%8D%A8%EB%B0%8B"
+                                    "dong": "판교동",
+                                    "apt": "판교푸르지오그랑블",
+                                    "size": "148.78㎡",
+                                    "price": "34억 5,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "gu": "과천시",
                                     "dong": "원문동",
-                                    "apt": "과천위버필드",
-                                    "size": "111.97㎡",
-                                    "price": "32억 1,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%EC%9C%84%EB%B2%84%ED%95%84%EB%93%9C"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "삼평동",
-                                    "apt": "봇들마을9단지(금호어울림)",
-                                    "size": "115.07㎡",
-                                    "price": "30억 4,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B4%87%EB%93%A4%EB%A7%88%EC%9D%849%EB%8B%A8%EC%A7%80%28%EA%B8%88%ED%98%B8%EC%96%B4%EC%9A%B8%EB%A6%BC%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "수내동",
-                                    "apt": "양지마을(5단지)(한양515-529)",
-                                    "size": "164.40㎡",
-                                    "price": "29억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%96%91%EC%A7%80%EB%A7%88%EC%9D%84%285%EB%8B%A8%EC%A7%80%29%28%ED%95%9C%EC%96%91515-529%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "정자동",
-                                    "apt": "파크뷰",
-                                    "size": "139.68㎡",
-                                    "price": "29억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%8C%8C%ED%81%AC%EB%B7%B0"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "백현동",
-                                    "apt": "판교알파리움2단지",
-                                    "size": "129.48㎡",
-                                    "price": "29억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%8C%90%EA%B5%90%EC%95%8C%ED%8C%8C%EB%A6%AC%EC%9B%802%EB%8B%A8%EC%A7%80"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "정자동",
-                                    "apt": "파크뷰",
-                                    "size": "139.68㎡",
-                                    "price": "28억 9,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%8C%8C%ED%81%AC%EB%B7%B0"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "삼평동",
-                                    "apt": "봇들마을7단지",
-                                    "size": "84.82㎡",
-                                    "price": "28억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B4%87%EB%93%A4%EB%A7%88%EC%9D%847%EB%8B%A8%EC%A7%80"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "중앙동",
                                     "apt": "과천푸르지오써밋",
-                                    "size": "84.95㎡",
-                                    "price": "27억 8,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%ED%91%B8%EB%A5%B4%EC%A7%80%EC%98%A4%EC%8D%A8%EB%B0%8B"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "중앙동",
-                                    "apt": "과천푸르지오써밋",
-                                    "size": "85.00㎡",
-                                    "price": "27억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%ED%91%B8%EB%A5%B4%EC%A7%80%EC%98%A4%EC%8D%A8%EB%B0%8B"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "정자동",
-                                    "apt": "파크뷰",
-                                    "size": "84.99㎡",
-                                    "price": "26억 4,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%8C%8C%ED%81%AC%EB%B7%B0"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "중앙동",
-                                    "apt": "과천푸르지오써밋",
-                                    "size": "84.94㎡",
-                                    "price": "25억 9,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%ED%91%B8%EB%A5%B4%EC%A7%80%EC%98%A4%EC%8D%A8%EB%B0%8B"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "백현동",
-                                    "apt": "백현마을9단지(e편한세상)",
-                                    "size": "117.80㎡",
-                                    "price": "25억 9,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%B1%ED%98%84%EB%A7%88%EC%9D%849%EB%8B%A8%EC%A7%80%28e%ED%8E%B8%ED%95%9C%EC%84%B8%EC%83%81%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "수내동",
-                                    "apt": "양지마을(5단지)(한양515-529)",
-                                    "size": "134.55㎡",
-                                    "price": "25억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%96%91%EC%A7%80%EB%A7%88%EC%9D%84%285%EB%8B%A8%EC%A7%80%29%28%ED%95%9C%EC%96%91515-529%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "수내동",
-                                    "apt": "양지마을(2단지)(청구)",
-                                    "size": "134.80㎡",
-                                    "price": "25억 2,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%96%91%EC%A7%80%EB%A7%88%EC%9D%84%282%EB%8B%A8%EC%A7%80%29%28%EC%B2%AD%EA%B5%AC%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "삼평동",
-                                    "apt": "봇들마을7단지",
-                                    "size": "84.50㎡",
-                                    "price": "25억 2,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B4%87%EB%93%A4%EB%A7%88%EC%9D%847%EB%8B%A8%EC%A7%80"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "원문동",
-                                    "apt": "과천위버필드",
-                                    "size": "84.98㎡",
-                                    "price": "25억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%EC%9C%84%EB%B2%84%ED%95%84%EB%93%9C"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "백현동",
-                                    "apt": "판교알파리움1단지",
-                                    "size": "96.15㎡",
-                                    "price": "25억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%8C%90%EA%B5%90%EC%95%8C%ED%8C%8C%EB%A6%AC%EC%9B%801%EB%8B%A8%EC%A7%80"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "운중동",
-                                    "apt": "산운마을14단지(경남아너스빌)",
-                                    "size": "150.21㎡",
-                                    "price": "25억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%82%B0%EC%9A%B4%EB%A7%88%EC%9D%8414%EB%8B%A8%EC%A7%80%28%EA%B2%BD%EB%82%A8%EC%95%84%EB%84%88%EC%8A%A4%EB%B9%8C%29"
+                                    "size": "84.93㎡",
+                                    "price": "24억 8,000만원",
+                                    "record": "보통"
                         },
                         {
                                     "gu": "수원시 영통구",
-                                    "dong": "원천동",
-                                    "apt": "광교중흥에스클래스",
-                                    "size": "109.53㎡",
-                                    "price": "24억 9,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B4%91%EA%B5%90%EC%A4%91%ED%9D%A5%EC%97%90%EC%8A%A4%ED%81%B4%EB%9E%98%EC%8A%A4"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "원문동",
-                                    "apt": "래미안슈르",
-                                    "size": "116.99㎡",
-                                    "price": "24억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%9E%98%EB%AF%B8%EC%95%88%EC%8A%88%EB%A5%B4"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "이매동",
-                                    "apt": "이매촌(동신9)",
-                                    "size": "134.88㎡",
-                                    "price": "24억 4,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%9D%B4%EB%A7%A4%EC%B4%8C%28%EB%8F%99%EC%8B%A09%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "수내동",
-                                    "apt": "양지마을(금호1)",
-                                    "size": "84.90㎡",
-                                    "price": "24억 3,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%96%91%EC%A7%80%EB%A7%88%EC%9D%84%28%EA%B8%88%ED%98%B81%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "백현동",
-                                    "apt": "백현마을7단지(주공)",
-                                    "size": "74.76㎡",
-                                    "price": "23억 4,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%B1%ED%98%84%EB%A7%88%EC%9D%847%EB%8B%A8%EC%A7%80%28%EC%A3%BC%EA%B3%B5%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "서현동",
-                                    "apt": "효자촌(현대)",
-                                    "size": "195.96㎡",
-                                    "price": "23억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%9A%A8%EC%9E%90%EC%B4%8C%28%ED%98%84%EB%8C%80%29"
-                        },
-                        {
-                                    "gu": "성남시 분당구",
-                                    "dong": "서현동",
-                                    "apt": "시범한신",
-                                    "size": "84.69㎡",
-                                    "price": "22억 7,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%8B%9C%EB%B2%94%ED%95%9C%EC%8B%A0"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "중앙동",
-                                    "apt": "과천푸르지오써밋",
-                                    "size": "59.93㎡",
-                                    "price": "22억 7,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B3%BC%EC%B2%9C%ED%91%B8%EB%A5%B4%EC%A7%80%EC%98%A4%EC%8D%A8%EB%B0%8B"
-                        }
-            ],
-            "gu_rankings": {
-                        "top5": [
-                                    {
-                                                "gu": "광명시",
-                                                "weekly_pct": "+32.02%",
-                                                "monthly_pct": "+3.43%",
-                                                "sample_n": 41
-                                    },
-                                    {
-                                                "gu": "수원시 영통구",
-                                                "weekly_pct": "+27.22%",
-                                                "monthly_pct": "-9.62%",
-                                                "sample_n": 9
-                                    },
-                                    {
-                                                "gu": "과천시",
-                                                "weekly_pct": "+9.69%",
-                                                "monthly_pct": "표본부족",
-                                                "sample_n": 3
-                                    },
-                                    {
-                                                "gu": "하남시",
-                                                "weekly_pct": "+9.53%",
-                                                "monthly_pct": "+0.77%",
-                                                "sample_n": 28
-                                    },
-                                    {
-                                                "gu": "성남시 분당구",
-                                                "weekly_pct": "+8.81%",
-                                                "monthly_pct": "+19.25%",
-                                                "sample_n": 27
-                                    }
-                        ],
-                        "bottom5": [
-                                    {
-                                                "gu": "하남시",
-                                                "weekly_pct": "+9.53%",
-                                                "monthly_pct": "+0.77%",
-                                                "sample_n": 28
-                                    },
-                                    {
-                                                "gu": "성남시 분당구",
-                                                "weekly_pct": "+8.81%",
-                                                "monthly_pct": "+19.25%",
-                                                "sample_n": 27
-                                    },
-                                    {
-                                                "gu": "용인시 수지구",
-                                                "weekly_pct": "+6.36%",
-                                                "monthly_pct": "-5.36%",
-                                                "sample_n": 13
-                                    },
-                                    {
-                                                "gu": "인천 연수구",
-                                                "weekly_pct": "+3.08%",
-                                                "monthly_pct": "-5.14%",
-                                                "sample_n": 22
-                                    },
-                                    {
-                                                "gu": "안양시 동안구",
-                                                "weekly_pct": "-0.59%",
-                                                "monthly_pct": "+4.12%",
-                                                "sample_n": 11
-                                    }
-                        ],
-                        "avg_weekly_pct": "+12.01%",
-                        "gu_count": 8
-            },
-            "market_date": "2026년 7월 13일 (월) 기준",
-            "news": [
-                        {
-                                    "gu": "과천시",
-                                    "dong": "원문동",
-                                    "name": "과천 푸르지오써밋",
-                                    "category": "신축",
-                                    "title": "GTX-C 착공 본궤도…교통망 기대감에 집값 ‘들썩’",
-                                    "link": "https://n.news.naver.com/mnews/article/119/0003110444?sid=101",
-                                    "date": "2026-07-12 08:12"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "원문동",
-                                    "name": "과천 푸르지오써밋",
-                                    "category": "신축",
-                                    "title": "GTX-C 본격 착공에, 노선 인접 지역 분양 활기",
-                                    "link": "https://www.viva100.com/article/20260713500471",
-                                    "date": "2026-07-13 11:00"
-                        },
-                        {
-                                    "gu": "과천시",
-                                    "dong": "원문동",
-                                    "name": "과천 푸르지오써밋",
-                                    "category": "신축",
-                                    "title": "GTX-C 착공 본격화⋯노선 따라 집값 ‘꿈틀’",
-                                    "link": "https://www.etoday.co.kr/news/view/2602441",
-                                    "date": "2026-07-11 16:02"
+                                    "dong": "이의동",
+                                    "apt": "광교중흥S클래스",
+                                    "size": "97.68㎡",
+                                    "price": "18억 2,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "gu": "화성시",
                                     "dong": "청계동",
-                                    "name": "동탄역 롯데캐슬",
-                                    "category": "신축",
-                                    "title": "“동탄역 근처만 폭등인데 동탄구 전체 규제”… ‘집값 소외’ 주민들...",
-                                    "link": "https://n.news.naver.com/mnews/article/037/0000038486?sid=101",
-                                    "date": "2026-07-11 07:01"
-                        },
-                        {
-                                    "gu": "화성시",
-                                    "dong": "청계동",
-                                    "name": "동탄역 롯데캐슬",
-                                    "category": "신축",
-                                    "title": "“동탄 26억은 부담?”…수요 몰린 영통 1.19%·기흥 0.56% 급등 [숫자 뒤...",
-                                    "link": "https://n.news.naver.com/mnews/article/022/0004142307?sid=101",
-                                    "date": "2026-07-12 05:02"
-                        },
-                        {
-                                    "gu": "화성시",
-                                    "dong": "청계동",
-                                    "name": "동탄역 롯데캐슬",
-                                    "category": "신축",
-                                    "title": "\"20억 동탄 덕분에 너무 싸보이는 동네\"…풍선효과에 관심 폭발한 아파...",
-                                    "link": "https://realty.chosun.com/site/data/html_dir/2026/07/13/2026071300775.html",
-                                    "date": "2026-07-13 09:36"
+                                    "apt": "동탄역롯데캐슬",
+                                    "size": "84.98㎡",
+                                    "price": "15억 6,000만원",
+                                    "record": "보통"
                         },
                         {
                                     "gu": "인천 연수구",
                                     "dong": "송도동",
-                                    "name": "송도 더샵퍼스트파크",
-                                    "category": "구축대단지",
-                                    "title": "성동구 '행당한진타운' 35평, 5억 떨어진 15.5억원에 거래 [일일 하락가...",
-                                    "link": "https://www.fntimes.com/html/view.php?ud=202607130843589408048b718333_18",
-                                    "date": "2026-07-13 08:54"
+                                    "apt": "송도자이크리스탈오션",
+                                    "size": "114.87㎡",
+                                    "price": "14억 1,000만원",
+                                    "record": "신고가"
                         }
             ],
-            "market_wide_news": [
+            "market_date": "2026년 7월 3일 (금) 기준",
+            "gu_rankings": {"top5": [], "bottom5": [], "avg_weekly_pct": "-"},
+            "news": [
                         {
-                                    "title": "[AI 부동산 투데이] 경기 신축 '국평'도 8.5억 있어야 산다…1년 새 1억원...",
-                                    "link": "https://www.newspim.com/news/view/20260713001127",
-                                    "date": "2026-07-13 17:57",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "금융권 부동산 PF 건전성 재악화…유의 이하 사업장↑ 경고음",
-                                    "link": "https://www.financialpost.co.kr/news/articleView.html?idxno=266276",
-                                    "date": "2026-07-13 14:52",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "반도체 기대감에 ‘브레이크’…토허제 묶인 광주, 부동산 영향은",
-                                    "link": "https://n.news.naver.com/mnews/article/119/0003110590?sid=101",
-                                    "date": "2026-07-13 07:20",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "李, '반도체·부동산' 대응책 고심…핵심 잣대는 민심 방향타",
-                                    "link": "https://www.m-i.kr/news/articleView.html?idxno=1390944",
-                                    "date": "2026-07-13 15:42",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "李대통령, 반도체·부동산 드라이브…지지율 반등 승부수",
-                                    "link": "https://www.m-i.kr/news/articleView.html?idxno=1390819",
-                                    "date": "2026-07-13 12:16",
-                                    "source": "네이버뉴스"
+                                    "gu": "과천시", "dong": "원문동", "name": "과천 푸르지오써밋", "category": "신축",
+                                    "title": "과천 재건축 후속 단지 입주 2년차, 실거래가 강세 지속",
+                                    "date": "2026-07-03 09:00",
+                                    "link": "https://search.naver.com/search.naver?query=%EA%B3%BC%EC%B2%9C+%ED%91%B8%EB%A5%B4%EC%A7%80%EC%98%A4%EC%94%A8%EB%B0%8B"
                         }
-            ]
+            ],
+            "market_wide_news": []
 };
         // --- GYEONGGI_ESTATE_DATA_END ---
 
@@ -642,7 +303,7 @@
 
             document.getElementById('estate-date').innerText = marketData.market_date || '-';
 
-            // 구별 주간/월간 등락률
+            // 시/군/구별 주간/월간/YTD 등락률
             const guTbody = document.getElementById('gu-ranking-tbody');
             guTbody.innerHTML = '';
             const gr = marketData.gu_rankings || {};
@@ -652,53 +313,55 @@
                     <td class="py-2.5 px-3 text-[#233a54] font-bold">${r.gu} ${label ? `<span class="text-[9px] text-[#8a7c60] font-normal">${label}</span>` : ''}</td>
                     <td class="py-2.5 px-3 text-right font-mono ${pctColor(r.weekly_pct)}">${r.weekly_pct}</td>
                     <td class="py-2.5 px-3 text-right font-mono ${pctColor(r.monthly_pct)}">${r.monthly_pct}</td>
+                    <td class="py-2.5 px-3 text-right font-mono ${pctColor(r.ytd_pct)}">${r.ytd_pct}</td>
                     <td class="py-2.5 px-3 text-right font-mono text-[10px] text-[#8a7c60]">${r.sample_n}건</td>
                 </tr>
             `;
             (gr.top5 || []).forEach(r => guTbody.innerHTML += renderGuRow(r, '▲상승'));
             (gr.bottom5 || []).forEach(r => guTbody.innerHTML += renderGuRow(r, '▼하락'));
             if (!gr.top5 || gr.top5.length === 0) {
-                guTbody.innerHTML = '<tr><td colspan="4" class="py-4 px-3 text-center text-[#6b5f48]">이번 주 비교 가능한 거래 표본이 부족합니다.</td></tr>';
+                guTbody.innerHTML = '<tr><td colspan="5" class="py-4 px-3 text-center text-[#6b5f48]">이번 주 비교 가능한 거래 표본이 부족합니다.</td></tr>';
             }
             document.getElementById('gu-avg-weekly').innerText = gr.avg_weekly_pct || '-';
 
-            // 관심단지 뉴스: 표 형태 + 자동 스크롤 티커 (그날 관련기사 있는 단지만)
-            const CATEGORY_STYLE = {
-                "재건축": { dot: "bg-rose-500", badge: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
-                "재개발": { dot: "bg-amber-500", badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-                "신축": { dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-                "구축대단지": { dot: "bg-[#6b5f48]", badge: "bg-[#6b5f48]/10 text-[#6b6048] border-[#6b5f48]/20" },
-            };
-            const track = document.getElementById('news-ticker-track');
-            const viewport = document.getElementById('news-ticker-viewport');
-            const rows = marketData.news || [];
-
-            const rowHtml = (item) => {
-                const style = CATEGORY_STYLE[item.category] || CATEGORY_STYLE["구축대단지"];
-                return `
-                    <div class="ticker-row items-center hover:bg-[#e2d3ac]/30">
-                        <span class="text-[#5f5340]">${item.gu}</span>
-                        <span class="text-[#5f5340]">${item.dong}</span>
-                        <span class="flex items-center gap-1.5 font-bold text-[#233a54] truncate">
-                            <span class="w-1.5 h-1.5 rounded-full ${style.dot} shrink-0"></span>
-                            <span class="truncate">${item.name}</span>
-                        </span>
-                        <a href="${item.link}" target="_blank" class="text-[#1f6d68] hover:underline truncate">${item.title}</a>
-                    </div>
-                `;
-            };
-
-            if (rows.length === 0) {
-                viewport.style.height = 'auto';
-                track.style.animation = 'none';
-                track.innerHTML = '<div class="ticker-row"><span class="col-span-4 text-[#6b5f48] text-center py-8">오늘 확보된 관심단지 뉴스가 없습니다.</span></div>';
-            } else {
-                // 이어붙임 스크롤이 자연스럽도록 리스트를 두 벌 복제
-                const rowsHtml = rows.map(rowHtml).join('');
-                track.innerHTML = rowsHtml + rowsHtml;
-                // 속도: 한 행당 대략 2.2초 분량으로 전체 애니메이션 시간 설정
-                track.style.animationDuration = `${Math.max(rows.length * 2.2, 8)}s`;
+            const pl = gr.period_label;
+            if (pl) {
+                document.getElementById('gu-period-label').innerText =
+                    `집계 기간 — 주간: ${pl.weekly_current} vs ${pl.weekly_prior} (신고 지연 감안 14일 전 기준) · 월간: ${pl.monthly_current} vs ${pl.monthly_prior} · YTD 기준월: ${pl.ytd_base}`;
             }
+
+            const guSelect = document.getElementById('gu-select');
+            const prevSelected = guSelect.value;
+            guSelect.innerHTML = '<option value="">-- 지역 선택 --</option>';
+            (gr.all_regions || []).forEach(r => {
+                guSelect.innerHTML += `<option value="${r.gu}">${r.gu}</option>`;
+            });
+            if (prevSelected) { guSelect.value = prevSelected; }
+            window._guAllRegions = gr.all_regions || [];
+
+            // 9개 핵심지역 실거래가 현황
+            const coreTbody = document.getElementById('core-region-tbody');
+            coreTbody.innerHTML = '';
+            (marketData.core_regions || []).forEach(item => {
+                coreTbody.innerHTML += `
+                    <tr class="hover:bg-[#efe4cd]/30 transition-colors border-b border-[#d8c69c]/20">
+                        <td class="py-3 px-2 text-[#3a4d61] font-semibold">${item.gu}</td>
+                        <td class="py-3 px-2 text-[#1c2f45] font-bold">
+                            ${item.link ? `<a href="${item.link}" target="_blank" class="hover:underline hover:text-[#1f6d68]">${item.apt}</a>` : item.apt}
+                        </td>
+                        <td class="py-3 px-2 text-[#5f5340] font-mono">${item.size}</td>
+                        <td class="py-3 px-2 text-right text-emerald-500 font-extrabold font-mono">${item.price}</td>
+                    </tr>
+                `;
+            });
+            if (!marketData.core_regions || marketData.core_regions.length === 0) {
+                coreTbody.innerHTML = '<tr><td colspan="4" class="py-4 px-3 text-center text-[#6b5f48]">이번 달 9개 핵심지역 거래 데이터가 없습니다.</td></tr>';
+            }
+
+            // 관심단지 뉴스: 표 형태 + 자동 스크롤 티커 (그날 관련기사 있는 단지만)
+            window._newsAllRows = marketData.news || [];
+            populateNewsFilters(window._newsAllRows);
+            renderNewsTicker(window._newsAllRows);
 
             // 부동산 시장 전반 뉴스 & 리포트
             const marketWideContainer = document.getElementById('market-wide-news');
@@ -721,6 +384,74 @@
             });
             if (!marketData.market_wide_news || marketData.market_wide_news.length === 0) {
                 marketWideContainer.innerHTML = '<p class="text-xs text-[#6b5f48] col-span-2">표시할 뉴스가 없습니다.</p>';
+            }
+        }
+
+        const NEWS_CATEGORY_STYLE = {
+            "재건축": { dot: "bg-rose-500", badge: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
+            "재개발": { dot: "bg-amber-500", badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
+            "신축": { dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+            "구축대단지": { dot: "bg-[#6b5f48]", badge: "bg-[#6b5f48]/10 text-[#6b6048] border-[#6b5f48]/20" },
+        };
+
+        function populateNewsFilters(rows) {
+            const guSel = document.getElementById('news-filter-gu');
+            const dongSel = document.getElementById('news-filter-dong');
+            const nameSel = document.getElementById('news-filter-name');
+            const gus = [...new Set(rows.map(r => r.gu))].sort();
+            const dongs = [...new Set(rows.map(r => r.dong))].sort();
+            const names = [...new Set(rows.map(r => r.name))].sort();
+            guSel.innerHTML = '<option value="">전체 지역</option>' + gus.map(g => `<option value="${g}">${g}</option>`).join('');
+            dongSel.innerHTML = '<option value="">전체 동</option>' + dongs.map(d => `<option value="${d}">${d}</option>`).join('');
+            nameSel.innerHTML = '<option value="">전체 단지</option>' + names.map(n => `<option value="${n}">${n}</option>`).join('');
+        }
+
+        function applyNewsFilter() {
+            const gu = document.getElementById('news-filter-gu').value;
+            const dong = document.getElementById('news-filter-dong').value;
+            const name = document.getElementById('news-filter-name').value;
+            const filtered = (window._newsAllRows || []).filter(r =>
+                (!gu || r.gu === gu) && (!dong || r.dong === dong) && (!name || r.name === name)
+            );
+            renderNewsTicker(filtered);
+        }
+
+        function resetNewsFilter() {
+            document.getElementById('news-filter-gu').value = '';
+            document.getElementById('news-filter-dong').value = '';
+            document.getElementById('news-filter-name').value = '';
+            renderNewsTicker(window._newsAllRows || []);
+        }
+
+        function renderNewsTicker(rows) {
+            const track = document.getElementById('news-ticker-track');
+            const viewport = document.getElementById('news-ticker-viewport');
+
+            const rowHtml = (item) => {
+                const style = NEWS_CATEGORY_STYLE[item.category] || NEWS_CATEGORY_STYLE["구축대단지"];
+                return `
+                    <div class="ticker-row items-center hover:bg-[#e2d3ac]/30">
+                        <span class="text-[#5f5340]">${item.gu}</span>
+                        <span class="text-[#5f5340]">${item.dong}</span>
+                        <span class="flex items-center gap-1.5 font-bold text-[#233a54] truncate">
+                            <span class="w-1.5 h-1.5 rounded-full ${style.dot} shrink-0"></span>
+                            <span class="truncate">${item.name}</span>
+                        </span>
+                        <a href="${item.link}" target="_blank" class="text-[#1f6d68] hover:underline truncate">${item.title}</a>
+                    </div>
+                `;
+            };
+
+            if (rows.length === 0) {
+                viewport.style.height = 'auto';
+                track.style.animation = 'none';
+                track.innerHTML = '<div class="ticker-row"><span class="col-span-4 text-[#6b5f48] text-center py-8">조건에 맞는 관심단지 뉴스가 없습니다.</span></div>';
+            } else {
+                const rowsHtml = rows.map(rowHtml).join('');
+                track.innerHTML = rowsHtml + rowsHtml;
+                track.style.animationDuration = `${Math.max(rows.length * 2.2, 8)}s`;
+                track.style.animation = '';
+                viewport.style.height = '320px';
             }
         }
 
