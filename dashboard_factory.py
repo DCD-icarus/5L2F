@@ -119,13 +119,30 @@ LAWD_CODES = {
     "관악구": "11620", "서초구": "11650", "강남구": "11680", "송파구": "11710", "강동구": "11740",
 }
 
-# 수도권(경기·인천) 핵심 9개 지역 법정동코드. 경기/인천 전역이 아니라 신이사님이
-# 지목하신 핵심 9개 지역만 우선 커버합니다 (전역 확대는 추후 과제).
+# 경기도 31개 시/군 + 인천광역시 10개 군구 전체 법정동코드
 GYEONGGI_LAWD_CODES = {
-    "과천시": "41290", "성남시 분당구": "41135", "하남시": "41450", "광명시": "41210",
-    "안양시 동안구": "41173", "용인시 수지구": "41465", "수원시 영통구": "41117",
-    "화성시": "41590", "인천 연수구": "28185",
+    "수원시 장안구": "41111", "수원시 권선구": "41113", "수원시 팔달구": "41115", "수원시 영통구": "41117",
+    "성남시 수정구": "41131", "성남시 중원구": "41133", "성남시 분당구": "41135",
+    "의정부시": "41150", "안양시 만안구": "41171", "안양시 동안구": "41173",
+    "부천시": "41190", "광명시": "41210", "평택시": "41220", "동두천시": "41250",
+    "안산시 상록구": "41271", "안산시 단원구": "41273",
+    "고양시 덕양구": "41281", "고양시 일산동구": "41285", "고양시 일산서구": "41287",
+    "과천시": "41290", "구리시": "41310", "남양주시": "41360", "오산시": "41370", "시흥시": "41390",
+    "군포시": "41410", "의왕시": "41430", "하남시": "41450",
+    "용인시 처인구": "41461", "용인시 기흥구": "41463", "용인시 수지구": "41465",
+    "파주시": "41480", "이천시": "41500", "안성시": "41550", "김포시": "41570", "화성시": "41590",
+    "광주시": "41610", "양주시": "41630", "포천시": "41650", "여주시": "41670",
+    "연천군": "41800", "가평군": "41820", "양평군": "41830",
+    "인천 중구": "28110", "인천 동구": "28140", "인천 미추홀구": "28177", "인천 연수구": "28185",
+    "인천 남동구": "28200", "인천 부평구": "28237", "인천 계양구": "28245", "인천 서구": "28260",
+    "인천 강화군": "28710", "인천 옹진군": "28720",
 }
+
+# 위 전체 41개 시/군/구 중 신이사님이 지목하신 핵심 9개 지역 (랜드마크 단지 집중 모니터링용)
+GYEONGGI_CORE_REGIONS = [
+    "과천시", "성남시 분당구", "하남시", "광명시", "안양시 동안구",
+    "용인시 수지구", "수원시 영통구", "화성시", "인천 연수구",
+]
 
 # 강남권 핵심 단지 16개동 (core 테이블 필터링 기준 - 동 단위)
 # 기존엔 제목은 "8개동"이라 해놓고 실제로는 특정 단지 6개로만 걸러지던 불일치가
@@ -1142,22 +1159,23 @@ def _median(vals):
     return s[mid] if n % 2 == 1 else (s[mid - 1] + s[mid]) / 2
 
 
-MIN_SAMPLE_SIZE = 3  # 이보다 표본이 적으면 등락률을 계산하지 않고 "표본부족" 처리
+MIN_SAMPLE_SIZE = 5  # 이보다 표본이 적으면 등락률을 계산하지 않고 "표본부족" 처리 (노이즈 완화를 위해 3→5로 상향)
 
 
-def build_gu_rankings(all_trades, now, group_field="gu"):
-    """구/시별 주간·월간 평단가(중앙값) 등락률.
+def build_gu_rankings(all_trades, now, group_field="gu", jan_trades=None):
+    """구/시별 주간·월간·YTD 평단가(중앙값) 등락률.
     한국부동산원의 공식 주택가격동향지수와는 산출방식이 다른, 5L2F가 국토부
-    실거래 데이터로 직접 집계한 자체 지표입니다.
+    실거래 데이터로 직접 집계한 자체 지표입니다. 표본이 적을수록 실제 가격
+    흐름과 무관하게 왜곡될 수 있어 100% 신뢰하지 마시고 참고용으로만
+    활용해주세요 (한국부동산원 공식 지수 연동은 검토 중입니다).
 
-    두 가지를 특히 신경 썼습니다:
+    신경 쓴 부분:
     ① 평균 대신 중앙값(median) 사용 - 고가 매물 한두 건에 등락률 전체가
        휘둘리는 것을 방지합니다.
     ② 실거래 신고는 계약 후 최대 30일 이내 이뤄지는 구조라, '최근 7일'을
-       기준으로 삼으면 아직 신고가 안 들어온 거래가 대부분이라 표본이
-       극도로 적어집니다. 그래서 기준일을 14일 전으로 당겨('14~21일 전' vs
-       '21~28일 전') 대부분의 거래가 이미 신고를 마쳤을 시점끼리 비교합니다.
-    그래도 표본이 3건 미만이면 등락률을 내지 않고 '표본부족'으로 표시합니다."""
+       기준으로 삼으면 표본이 극도로 적어집니다. 기준일을 14일 전으로 당겨
+       비교합니다.
+    ③ 표본이 5건 미만이면 등락률을 내지 않고 '표본부족'으로 표시합니다."""
     ref = now - timedelta(days=14)  # 신고 지연을 감안한 기준일
     week_cut0 = ref
     week_cut1 = ref - timedelta(days=7)
@@ -1170,6 +1188,11 @@ def build_gu_rankings(all_trades, now, group_field="gu"):
     for t in all_trades:
         by_group.setdefault(t[group_field], []).append(t)
 
+    jan_by_group = {}
+    if jan_trades:
+        for t in jan_trades:
+            jan_by_group.setdefault(t[group_field], []).append(t)
+
     def median_ppp(trades):
         vals = [v for v in (_price_per_pyeong(t) for t in trades) if v]
         return (_median(vals), len(vals)) if vals else (None, 0)
@@ -1181,22 +1204,27 @@ def build_gu_rankings(all_trades, now, group_field="gu"):
         last_week = [t for t in with_dt if week_cut2 <= t["deal_dt"] < week_cut1]
         this_month = [t for t in with_dt if t["deal_dt"] >= month_start]
         last_month = [t for t in with_dt if prev_month_start <= t["deal_dt"] <= prev_month_end]
+        jan_trades_grp = jan_by_group.get(grp, [])
 
         tw_med, tw_n = median_ppp(this_week)
         lw_med, lw_n = median_ppp(last_week)
         tm_med, tm_n = median_ppp(this_month)
         lm_med, lm_n = median_ppp(last_month)
+        jan_med, jan_n = median_ppp(jan_trades_grp)
 
         weekly_ok = tw_n >= MIN_SAMPLE_SIZE and lw_n >= MIN_SAMPLE_SIZE
         monthly_ok = tm_n >= MIN_SAMPLE_SIZE and lm_n >= MIN_SAMPLE_SIZE
+        ytd_ok = tm_n >= MIN_SAMPLE_SIZE and jan_n >= MIN_SAMPLE_SIZE
 
         weekly_pct = ((tw_med - lw_med) / lw_med * 100) if (weekly_ok and tw_med and lw_med) else None
         monthly_pct = ((tm_med - lm_med) / lm_med * 100) if (monthly_ok and tm_med and lm_med) else None
+        ytd_pct = ((tm_med - jan_med) / jan_med * 100) if (ytd_ok and tm_med and jan_med) else None
 
         rows.append({
             "gu": grp,
             "weekly_pct": weekly_pct, "weekly_n": min(tw_n, lw_n),
             "monthly_pct": monthly_pct, "monthly_n": min(tm_n, lm_n),
+            "ytd_pct": ytd_pct, "ytd_n": min(tm_n, jan_n) if jan_trades else None,
         })
 
     valid_weekly = [r for r in rows if r["weekly_pct"] is not None]
@@ -1205,19 +1233,33 @@ def build_gu_rankings(all_trades, now, group_field="gu"):
     bottom5 = valid_weekly[-5:] if len(valid_weekly) > 5 else []
     avg_weekly = sum(r["weekly_pct"] for r in valid_weekly) / len(valid_weekly) if valid_weekly else None
 
+    def fmt_pct_or_na(v):
+        return f"{'+' if v >= 0 else ''}{v:.2f}%" if v is not None else "표본부족"
+
     def fmt_row(r):
         return {
             "gu": r["gu"],
-            "weekly_pct": f"{'+' if r['weekly_pct'] >= 0 else ''}{r['weekly_pct']:.2f}%" if r["weekly_pct"] is not None else "표본부족",
-            "monthly_pct": f"{'+' if r['monthly_pct'] >= 0 else ''}{r['monthly_pct']:.2f}%" if r["monthly_pct"] is not None else "표본부족",
+            "weekly_pct": fmt_pct_or_na(r["weekly_pct"]),
+            "monthly_pct": fmt_pct_or_na(r["monthly_pct"]),
+            "ytd_pct": fmt_pct_or_na(r["ytd_pct"]) if jan_trades else "-",
             "sample_n": r["weekly_n"],
         }
+
+    all_rows_sorted = sorted(rows, key=lambda r: r["gu"])
 
     return {
         "top5": [fmt_row(r) for r in top5],
         "bottom5": [fmt_row(r) for r in bottom5],
+        "all_regions": [fmt_row(r) for r in all_rows_sorted],  # 지역 선택 드롭다운용 전체 목록
         "avg_weekly_pct": f"{'+' if avg_weekly >= 0 else ''}{avg_weekly:.2f}%" if avg_weekly is not None else "-",
         "gu_count": len(valid_weekly),
+        "period_label": {
+            "weekly_current": f"{week_cut1.strftime('%m/%d')}~{week_cut0.strftime('%m/%d')}",
+            "weekly_prior": f"{week_cut2.strftime('%m/%d')}~{week_cut1.strftime('%m/%d')}",
+            "monthly_current": month_start.strftime('%Y년 %m월'),
+            "monthly_prior": prev_month_start.strftime('%Y년 %m월'),
+            "ytd_base": "2026년 1월",
+        },
     }
 
 
@@ -1229,8 +1271,10 @@ def build_seoul_estate_data(molit_api_key):
     now = datetime.now(KST)
     deal_ymd = now.strftime("%Y%m")
     prev_ymd = (now.replace(day=1) - timedelta(days=1)).strftime("%Y%m")
+    jan_ymd = now.replace(month=1).strftime("%Y%m")
 
     all_trades = []
+    jan_trades = []
     for gu, code in LAWD_CODES.items():
         for ymd in (deal_ymd, prev_ymd):  # 주간/월간 등락률 계산을 위해 두 달치를 항상 조회
             trades = fetch_molit_trades(code, ymd, molit_api_key)
@@ -1238,17 +1282,25 @@ def build_seoul_estate_data(molit_api_key):
                 t["gu"] = gu
                 _add_deal_dt(t)
             all_trades.extend(trades)
+        if jan_ymd not in (deal_ymd, prev_ymd):  # 1월이 이미 위에서 조회된 경우 중복 조회 방지
+            jt = fetch_molit_trades(code, jan_ymd, molit_api_key)
+            for t in jt:
+                t["gu"] = gu
+                _add_deal_dt(t)
+            jan_trades.extend(jt)
+        else:
+            jan_trades.extend([t for t in all_trades if t["gu"] == gu and t["deal_dt"] and t["deal_dt"].month == 1])
 
     if not all_trades:
         log.error("서울 실거래가 데이터를 하나도 가져오지 못했습니다.")
         return None
 
-    gu_rankings = build_gu_rankings(all_trades, now)
+    gu_rankings = build_gu_rankings(all_trades, now, jan_trades=jan_trades)
 
     all_trades.sort(key=lambda x: x["amount_manwon"], reverse=True)
-    top30 = []
-    for t in all_trades[:30]:
-        top30.append({
+    top20 = []
+    for t in all_trades[:20]:
+        top20.append({
             "gu": t["gu"], "dong": t["dong"], "apt": t["apt"],
             "size": f"{float(t['area']):.2f}㎡", "price": _fmt_eok(t["amount_manwon"]),
             "record": "신고가" if False else "보통",  # 신고가 판정은 과거 데이터 누적이 필요해 후속 과제로 표시
@@ -1270,7 +1322,7 @@ def build_seoul_estate_data(molit_api_key):
         })
 
     return {
-        "top30": top30,
+        "top30": top20,
         "core": core_dedup,
         "gu_rankings": gu_rankings,
         "market_date": kst_date_label(),
@@ -1475,8 +1527,8 @@ def run_seoul_estate_mode(molit_api_key, naver_id=None, naver_secret=None):
 # 수도권(경기·인천) 핵심 9개 지역 아파트 실거래가
 # ---------------------------------------------------------------------------
 def build_gyeonggi_estate_data(molit_api_key):
-    """서울과 동일한 로직/기준으로 경기·인천 핵심 9개 지역을 집계합니다.
-    전체 경기/인천이 아니라 신이사님이 지목하신 9개 핵심지만 우선 커버합니다."""
+    """경기 31개 시/군 + 인천 10개 군구 전체를 커버합니다. 신이사님이 지목하신
+    핵심 9개 지역은 별도로 '9개 핵심지역 실거래가 현황' 스냅샷으로 함께 제공합니다."""
     if not molit_api_key:
         log.error("MOLIT_API_KEY 미설정 - 수도권 실거래가 조회 불가")
         return None
@@ -1484,8 +1536,10 @@ def build_gyeonggi_estate_data(molit_api_key):
     now = datetime.now(KST)
     deal_ymd = now.strftime("%Y%m")
     prev_ymd = (now.replace(day=1) - timedelta(days=1)).strftime("%Y%m")
+    jan_ymd = now.replace(month=1).strftime("%Y%m")
 
     all_trades = []
+    jan_trades = []
     for si, code in GYEONGGI_LAWD_CODES.items():
         for ymd in (deal_ymd, prev_ymd):
             trades = fetch_molit_trades(code, ymd, molit_api_key)
@@ -1493,25 +1547,48 @@ def build_gyeonggi_estate_data(molit_api_key):
                 t["gu"] = si  # build_gu_rankings/표 렌더링과 필드명을 통일(구 대신 시 단위)
                 _add_deal_dt(t)
             all_trades.extend(trades)
+        if jan_ymd not in (deal_ymd, prev_ymd):
+            jt = fetch_molit_trades(code, jan_ymd, molit_api_key)
+            for t in jt:
+                t["gu"] = si
+                _add_deal_dt(t)
+            jan_trades.extend(jt)
+        else:
+            jan_trades.extend([t for t in all_trades if t["gu"] == si and t["deal_dt"] and t["deal_dt"].month == 1])
 
     if not all_trades:
         log.error("수도권 실거래가 데이터를 하나도 가져오지 못했습니다.")
         return None
 
-    si_rankings = build_gu_rankings(all_trades, now, group_field="gu")
+    si_rankings = build_gu_rankings(all_trades, now, group_field="gu", jan_trades=jan_trades)
 
     all_trades.sort(key=lambda x: x["amount_manwon"], reverse=True)
-    top30 = []
-    for t in all_trades[:30]:
-        top30.append({
+    top20 = []
+    for t in all_trades[:20]:
+        top20.append({
             "gu": t["gu"], "dong": t["dong"], "apt": t["apt"],
             "size": f"{float(t['area']):.2f}㎡", "price": _fmt_eok(t["amount_manwon"]),
             "record": "보통",
             "link": _naver_land_search_link(t["apt"]),
         })
 
+    # 9개 핵심지역 실거래가 현황: 지역별 최고가 거래 1건씩 (서울페이지의 16개동 스냅샷과 동일한 개념)
+    by_core_region = {}
+    for t in all_trades:
+        if t["gu"] in GYEONGGI_CORE_REGIONS:
+            if t["gu"] not in by_core_region or t["amount_manwon"] > by_core_region[t["gu"]]["amount_manwon"]:
+                by_core_region[t["gu"]] = t
+    core_regions = []
+    for region, t in sorted(by_core_region.items(), key=lambda kv: kv[1]["amount_manwon"], reverse=True):
+        core_regions.append({
+            "gu": region, "dong": t["dong"], "apt": t["apt"], "size": f"{float(t['area']):.2f}㎡",
+            "price": _fmt_eok(t["amount_manwon"]), "record": "보통",
+            "link": _naver_land_search_link(t["apt"]),
+        })
+
     return {
-        "top30": top30,
+        "top30": top20,
+        "core_regions": core_regions,
         "gu_rankings": si_rankings,
         "market_date": kst_date_label(),
         "news": None,  # run_gyeonggi_estate_mode()에서 채움
