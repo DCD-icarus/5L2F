@@ -5,6 +5,7 @@ on:
     - cron: '0 7 * * 1-5'    # KST 16:00 평일 -> KOSPI + REITs 마감
     - cron: '0 22 * * 1-5'   # KST 07:00 평일 -> 미국장 마감
     - cron: '10 22 * * *'    # KST 07:10 매일 -> 서울 부동산 실거래가
+    - cron: '20 22 * * *'    # KST 07:20 매일 -> 수도권(경기·인천) 부동산 실거래가
   workflow_dispatch:
     inputs:
       mode:
@@ -17,6 +18,7 @@ on:
           - kospi_reits
           - us_market
           - seoul_estate
+          - gyeonggi_estate
 
 permissions:
   contents: write
@@ -56,6 +58,7 @@ jobs:
               "0 7 * * 1-5")  echo "mode=kospi_reits" >> "$GITHUB_OUTPUT" ;;
               "0 22 * * 1-5") echo "mode=us_market" >> "$GITHUB_OUTPUT" ;;
               "10 22 * * *")  echo "mode=seoul_estate" >> "$GITHUB_OUTPUT" ;;
+              "20 22 * * *")  echo "mode=gyeonggi_estate" >> "$GITHUB_OUTPUT" ;;
               *)              echo "mode=all" >> "$GITHUB_OUTPUT" ;;
             esac
           fi
