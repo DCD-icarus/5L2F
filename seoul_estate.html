@@ -69,7 +69,7 @@
         <!-- [0번째 내용] 서울 25개구 주간/월간 평단가 등락률 -->
         <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 glow-card">
             <h3 class="font-bold text-lg text-[#1c2f45] mb-1"><i class="fa-solid fa-arrow-trend-up text-[#1f6d68] mr-2.5"></i>서울 구별 주간·월간 평단가 등락률 (상승 5 · 하락 5)</h3>
-            <p class="text-[11px] text-[#8a7c60] mb-4">국토부 실거래 데이터를 5L2F가 직접 집계한 자체 지표이며, 한국부동산원 공식 주택가격지수와 산출방식이 다릅니다. 표본이 적은 주에는 변동폭이 과장될 수 있어 참고용으로만 활용해주세요.</p>
+            <p class="text-[11px] text-[#8a7c60] mb-4">국토부 실거래 데이터를 5L2F가 직접 집계한 자체 지표(중앙값 기준)이며, 한국부동산원 공식 주택가격지수와 산출방식이 다릅니다. 실거래 신고가 계약 후 최대 30일 이내 이뤄지는 점을 감안해 기준일을 14일 전으로 당겨 비교했고, 구별 표본이 3건 미만이면 "표본부족"으로 표시해 왜곡을 줄였습니다.</p>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
@@ -202,896 +202,117 @@
         const marketData = {
             "top30": [
                         {
+                                    "gu": "강남구",
+                                    "dong": "압구정동",
+                                    "apt": "현대7차",
+                                    "size": "157.36㎡",
+                                    "price": "67억 5,000만원",
+                                    "record": "신고가"
+                        },
+                        {
+                                    "gu": "성동구",
+                                    "dong": "성수동1가",
+                                    "apt": "아크로서울포레스트",
+                                    "size": "159.60㎡",
+                                    "price": "64억 3,000만원",
+                                    "record": "보통"
+                        },
+                        {
                                     "gu": "용산구",
                                     "dong": "한남동",
                                     "apt": "나인원한남",
-                                    "size": "273.94㎡",
-                                    "price": "250억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%82%98%EC%9D%B8%EC%9B%90%ED%95%9C%EB%82%A8"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "apt": "래미안원베일리",
-                                    "size": "168.93㎡",
-                                    "price": "130억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%9E%98%EB%AF%B8%EC%95%88%EC%9B%90%EB%B2%A0%EC%9D%BC%EB%A6%AC"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "apt": "래미안원베일리",
-                                    "size": "168.87㎡",
-                                    "price": "122억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%9E%98%EB%AF%B8%EC%95%88%EC%9B%90%EB%B2%A0%EC%9D%BC%EB%A6%AC"
+                                    "size": "206.89㎡",
+                                    "price": "97억 0,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "gu": "강남구",
                                     "dong": "삼성동",
-                                    "apt": "아이파크",
-                                    "size": "195.39㎡",
+                                    "apt": "아이파크삼성",
+                                    "size": "195.38㎡",
                                     "price": "97억 7,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%95%84%EC%9D%B4%ED%8C%8C%ED%81%AC"
+                                    "record": "신고가"
                         },
                         {
                                     "gu": "서초구",
                                     "dong": "반포동",
-                                    "apt": "래미안원펜타스",
-                                    "size": "191.86㎡",
-                                    "price": "94억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%9E%98%EB%AF%B8%EC%95%88%EC%9B%90%ED%8E%9C%ED%83%80%EC%8A%A4"
+                                    "apt": "래미안원베일리",
+                                    "size": "84.97㎡",
+                                    "price": "49억 8,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "gu": "서초구",
                                     "dong": "반포동",
-                                    "apt": "반포자이",
-                                    "size": "244.54㎡",
-                                    "price": "76억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%98%ED%8F%AC%EC%9E%90%EC%9D%B4"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "apt": "반포자이",
-                                    "size": "194.51㎡",
-                                    "price": "69억 8,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%98%ED%8F%AC%EC%9E%90%EC%9D%B4"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "잠원동",
-                                    "apt": "반포르엘",
-                                    "size": "121.61㎡",
-                                    "price": "69억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%98%ED%8F%AC%EB%A5%B4%EC%97%98"
+                                    "apt": "아크로리버파크",
+                                    "size": "84.95㎡",
+                                    "price": "43억 5,000만원",
+                                    "record": "보통"
                         },
                         {
                                     "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "신현대9차",
-                                    "size": "111.38㎡",
-                                    "price": "66억 2,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%8B%A0%ED%98%84%EB%8C%809%EC%B0%A8"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "대치동",
-                                    "apt": "개포우성2",
-                                    "size": "159.60㎡",
-                                    "price": "62억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B0%9C%ED%8F%AC%EC%9A%B0%EC%84%B12"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "현대13차(208~211동)",
-                                    "size": "108.47㎡",
-                                    "price": "61억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%98%84%EB%8C%8013%EC%B0%A8%28208~211%EB%8F%99%29"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "대치동",
-                                    "apt": "개포우성2",
-                                    "size": "159.60㎡",
-                                    "price": "61억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B0%9C%ED%8F%AC%EC%9A%B0%EC%84%B12"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "현대13차(208~211동)",
-                                    "size": "105.45㎡",
-                                    "price": "61억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%98%84%EB%8C%8013%EC%B0%A8%28208~211%EB%8F%99%29"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "신현대12차",
-                                    "size": "112.05㎡",
-                                    "price": "60억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%8B%A0%ED%98%84%EB%8C%8012%EC%B0%A8"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "한양3",
-                                    "size": "116.94㎡",
-                                    "price": "60억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%95%9C%EC%96%913"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "신현대12차",
-                                    "size": "112.05㎡",
-                                    "price": "59억 9,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%8B%A0%ED%98%84%EB%8C%8012%EC%B0%A8"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "apt": "디에이치반포라클라스",
-                                    "size": "132.99㎡",
-                                    "price": "57억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%94%94%EC%97%90%EC%9D%B4%EC%B9%98%EB%B0%98%ED%8F%AC%EB%9D%BC%ED%81%B4%EB%9D%BC%EC%8A%A4"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "한양1차(영동한양)",
-                                    "size": "91.21㎡",
-                                    "price": "56억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%95%9C%EC%96%911%EC%B0%A8%28%EC%98%81%EB%8F%99%ED%95%9C%EC%96%91%29"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "현대5차(71,72동)",
-                                    "size": "82.23㎡",
-                                    "price": "55억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%98%84%EB%8C%805%EC%B0%A8%2871%2C72%EB%8F%99%29"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "apt": "래미안퍼스티지",
-                                    "size": "84.93㎡",
-                                    "price": "54억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%9E%98%EB%AF%B8%EC%95%88%ED%8D%BC%EC%8A%A4%ED%8B%B0%EC%A7%80"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "apt": "아시아선수촌아파트",
-                                    "size": "151.01㎡",
-                                    "price": "54억 2,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%95%84%EC%8B%9C%EC%95%84%EC%84%A0%EC%88%98%EC%B4%8C%EC%95%84%ED%8C%8C%ED%8A%B8"
-                        },
-                        {
-                                    "gu": "영등포구",
-                                    "dong": "여의도동",
-                                    "apt": "서울",
-                                    "size": "139.31㎡",
-                                    "price": "54억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%84%9C%EC%9A%B8"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "apt": "반포래미안아이파크",
-                                    "size": "130.93㎡",
-                                    "price": "53억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%98%ED%8F%AC%EB%9E%98%EB%AF%B8%EC%95%88%EC%95%84%EC%9D%B4%ED%8C%8C%ED%81%AC"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "apt": "한양6",
-                                    "size": "110.74㎡",
-                                    "price": "52억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%95%9C%EC%96%916"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "잠원동",
-                                    "apt": "아크로리버뷰신반포",
-                                    "size": "78.50㎡",
-                                    "price": "51억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%95%84%ED%81%AC%EB%A1%9C%EB%A6%AC%EB%B2%84%EB%B7%B0%EC%8B%A0%EB%B0%98%ED%8F%AC"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "대치동",
-                                    "apt": "선경1차(1동-7동)",
-                                    "size": "136.68㎡",
-                                    "price": "50억 7,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%84%A0%EA%B2%BD1%EC%B0%A8%281%EB%8F%99-7%EB%8F%99%29"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "청담동",
-                                    "apt": "청담자이",
-                                    "size": "89.11㎡",
-                                    "price": "50억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%B2%AD%EB%8B%B4%EC%9E%90%EC%9D%B4"
-                        },
-                        {
-                                    "gu": "종로구",
-                                    "dong": "신문로2가",
-                                    "apt": "디팰리스",
-                                    "size": "147.55㎡",
-                                    "price": "50억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%94%94%ED%8C%B0%EB%A6%AC%EC%8A%A4"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "잠원동",
-                                    "apt": "메이플자이",
-                                    "size": "84.85㎡",
-                                    "price": "50억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%A9%94%EC%9D%B4%ED%94%8C%EC%9E%90%EC%9D%B4"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "대치동",
-                                    "apt": "개포우성2",
-                                    "size": "127.78㎡",
-                                    "price": "50억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B0%9C%ED%8F%AC%EC%9A%B0%EC%84%B12"
+                                    "dong": "도곡동",
+                                    "apt": "타워팰리스3차",
+                                    "size": "185.62㎡",
+                                    "price": "48억 0,000만원",
+                                    "record": "신고가"
                         }
             ],
             "core": [
                         {
                                     "dong": "반포동",
                                     "apt": "래미안원베일리",
-                                    "size": "168.93㎡",
-                                    "price": "130억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%9E%98%EB%AF%B8%EC%95%88%EC%9B%90%EB%B2%A0%EC%9D%BC%EB%A6%AC"
-                        },
-                        {
-                                    "dong": "삼성동",
-                                    "apt": "아이파크",
-                                    "size": "195.39㎡",
-                                    "price": "97억 7,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%95%84%EC%9D%B4%ED%8C%8C%ED%81%AC"
-                        },
-                        {
-                                    "dong": "잠원동",
-                                    "apt": "반포르엘",
-                                    "size": "121.61㎡",
-                                    "price": "69억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%98%ED%8F%AC%EB%A5%B4%EC%97%98"
-                        },
-                        {
-                                    "dong": "압구정동",
-                                    "apt": "신현대9차",
-                                    "size": "111.38㎡",
-                                    "price": "66억 2,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%8B%A0%ED%98%84%EB%8C%809%EC%B0%A8"
-                        },
-                        {
-                                    "dong": "대치동",
-                                    "apt": "개포우성2",
-                                    "size": "159.60㎡",
-                                    "price": "62억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B0%9C%ED%8F%AC%EC%9A%B0%EC%84%B12"
-                        },
-                        {
-                                    "dong": "잠실동",
-                                    "apt": "아시아선수촌아파트",
-                                    "size": "151.01㎡",
-                                    "price": "54억 2,500만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%95%84%EC%8B%9C%EC%95%84%EC%84%A0%EC%88%98%EC%B4%8C%EC%95%84%ED%8C%8C%ED%8A%B8"
-                        },
-                        {
-                                    "dong": "청담동",
-                                    "apt": "청담자이",
-                                    "size": "89.11㎡",
-                                    "price": "50억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%B2%AD%EB%8B%B4%EC%9E%90%EC%9D%B4"
+                                    "size": "84.97㎡",
+                                    "price": "49억 8,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "dong": "도곡동",
-                                    "apt": "타워팰리스1",
-                                    "size": "137.24㎡",
-                                    "price": "44억 3,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%83%80%EC%9B%8C%ED%8C%B0%EB%A6%AC%EC%8A%A41"
+                                    "apt": "타워팰리스3차",
+                                    "size": "185.62㎡",
+                                    "price": "48억 0,000만원",
+                                    "record": "신고가"
                         },
                         {
-                                    "dong": "서초동",
-                                    "apt": "진흥아파트",
-                                    "size": "160.46㎡",
-                                    "price": "42억 5,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%A7%84%ED%9D%A5%EC%95%84%ED%8C%8C%ED%8A%B8"
+                                    "dong": "반포동",
+                                    "apt": "아크로리버파크",
+                                    "size": "84.95㎡",
+                                    "price": "43억 5,000만원",
+                                    "record": "보통"
                         },
                         {
-                                    "dong": "개포동",
-                                    "apt": "개포래미안포레스트",
-                                    "size": "112.97㎡",
-                                    "price": "40억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EA%B0%9C%ED%8F%AC%EB%9E%98%EB%AF%B8%EC%95%88%ED%8F%AC%EB%A0%88%EC%8A%A4%ED%8A%B8"
-                        },
-                        {
-                                    "dong": "방배동",
-                                    "apt": "방배신삼호",
-                                    "size": "185.46㎡",
-                                    "price": "38억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EB%B0%A9%EB%B0%B0%EC%8B%A0%EC%82%BC%ED%98%B8"
-                        },
-                        {
-                                    "dong": "방이동",
-                                    "apt": "올림픽선수기자촌1단지",
-                                    "size": "121.23㎡",
-                                    "price": "37억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%98%AC%EB%A6%BC%ED%94%BD%EC%84%A0%EC%88%98%EA%B8%B0%EC%9E%90%EC%B4%8C1%EB%8B%A8%EC%A7%80"
-                        },
-                        {
-                                    "dong": "신천동",
-                                    "apt": "장미2",
-                                    "size": "82.45㎡",
-                                    "price": "32억 4,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%9E%A5%EB%AF%B82"
+                                    "dong": "잠실동",
+                                    "apt": "잠실엘스",
+                                    "size": "84.80㎡",
+                                    "price": "26억 8,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "dong": "둔촌동",
                                     "apt": "올림픽파크포레온",
-                                    "size": "84.99㎡",
-                                    "price": "31억 3,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%98%AC%EB%A6%BC%ED%94%BD%ED%8C%8C%ED%81%AC%ED%8F%AC%EB%A0%88%EC%98%A8"
+                                    "size": "84.98㎡",
+                                    "price": "24억 2,000만원",
+                                    "record": "신고가"
                         },
                         {
                                     "dong": "가락동",
                                     "apt": "헬리오시티",
-                                    "size": "84.95㎡",
-                                    "price": "30억 8,000만원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%ED%97%AC%EB%A6%AC%EC%98%A4%EC%8B%9C%ED%8B%B0"
-                        },
-                        {
-                                    "dong": "오금동",
-                                    "apt": "쌍용스위닷홈(201동)",
-                                    "size": "143.82㎡",
-                                    "price": "19억원",
-                                    "record": "보통",
-                                    "link": "https://m.land.naver.com/search/result/%EC%8C%8D%EC%9A%A9%EC%8A%A4%EC%9C%84%EB%8B%B7%ED%99%88%28201%EB%8F%99%29"
+                                    "size": "84.96㎡",
+                                    "price": "21억 4,000만원",
+                                    "record": "보통"
                         }
             ],
-            "gu_rankings": {
-                        "top5": [
-                                    {
-                                                "gu": "용산구",
-                                                "weekly_pct": "+78.04%",
-                                                "monthly_pct": "+27.27%",
-                                                "sample_n": 2
-                                    },
-                                    {
-                                                "gu": "금천구",
-                                                "weekly_pct": "+55.21%",
-                                                "monthly_pct": "+17.36%",
-                                                "sample_n": 8
-                                    },
-                                    {
-                                                "gu": "강남구",
-                                                "weekly_pct": "+24.82%",
-                                                "monthly_pct": "-18.02%",
-                                                "sample_n": 17
-                                    },
-                                    {
-                                                "gu": "중랑구",
-                                                "weekly_pct": "+17.44%",
-                                                "monthly_pct": "+13.62%",
-                                                "sample_n": 32
-                                    },
-                                    {
-                                                "gu": "구로구",
-                                                "weekly_pct": "+3.57%",
-                                                "monthly_pct": "+10.48%",
-                                                "sample_n": 69
-                                    }
-                        ],
-                        "bottom5": [
-                                    {
-                                                "gu": "은평구",
-                                                "weekly_pct": "-17.27%",
-                                                "monthly_pct": "+4.45%",
-                                                "sample_n": 51
-                                    },
-                                    {
-                                                "gu": "도봉구",
-                                                "weekly_pct": "-17.85%",
-                                                "monthly_pct": "-0.05%",
-                                                "sample_n": 43
-                                    },
-                                    {
-                                                "gu": "성동구",
-                                                "weekly_pct": "-18.88%",
-                                                "monthly_pct": "+1.31%",
-                                                "sample_n": 4
-                                    },
-                                    {
-                                                "gu": "강북구",
-                                                "weekly_pct": "-33.68%",
-                                                "monthly_pct": "+0.67%",
-                                                "sample_n": 3
-                                    },
-                                    {
-                                                "gu": "송파구",
-                                                "weekly_pct": "-40.94%",
-                                                "monthly_pct": "-10.29%",
-                                                "sample_n": 22
-                                    }
-                        ],
-                        "avg_weekly_pct": "-2.70%",
-                        "gu_count": 21
-            },
-            "market_date": "2026년 7월 13일 (월) 기준",
+            "market_date": "2026년 7월 3일 (금) 기준",
+            "gu_rankings": {"top5": [], "bottom5": [], "avg_weekly_pct": "-"},
             "news": [
                         {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "name": "잠실주공5단지",
-                                    "category": "재건축",
-                                    "title": "[르포] “기대‧걱정 시기상조”... 재건축 속도 낸 잠실 주공5단지 가보...",
-                                    "link": "https://www.ekn.kr/web/view.php?key=20260710020111261",
-                                    "date": "2026-07-10 14:28"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "name": "잠실주공5단지",
-                                    "category": "재건축",
-                                    "title": "성수부터 잠실·여의도·목동까지…서울 재건축 ‘빅매치’",
-                                    "link": "https://n.news.naver.com/mnews/article/050/0000108472?sid=101",
-                                    "date": "2026-07-13 10:57"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "name": "잠실주공5단지",
-                                    "category": "재건축",
-                                    "title": "‘장기전세 20년’ 곳곳에 닥친 청구서…‘시프트’는 누구를 위한 공공...",
-                                    "link": "https://n.news.naver.com/mnews/article/032/0003457676?sid=101",
-                                    "date": "2026-07-13 06:00"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "신천동",
-                                    "name": "잠실 장미아파트",
-                                    "category": "재건축",
-                                    "title": "25년 세무 전문가 윤유진 서울시의원 “재산세 감면부터 손보겠다”",
-                                    "link": "https://n.news.naver.com/mnews/article/005/0001860608?sid=100",
-                                    "date": "2026-07-13 10:16"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "name": "잠실 엘스",
-                                    "category": "구축대단지",
-                                    "title": "128억이 90억으로? 작년 최고치 찍은 강남3구 아파트, 올해 살펴보니…...",
-                                    "link": "https://n.news.naver.com/mnews/article/002/0002447943?sid=101",
-                                    "date": "2026-07-10 09:55"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "name": "잠실 리센츠",
-                                    "category": "구축대단지",
-                                    "title": "[강동완의 탐방] 마루미베이글 잠실리센츠점…동네 베이글 맛집 일상 소...",
-                                    "link": "https://www.shinailbo.co.kr/news/articleView.html?idxno=5039085",
-                                    "date": "2026-07-10 09:10"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "잠실동",
-                                    "name": "잠실 리센츠",
-                                    "category": "구축대단지",
-                                    "title": "[단독] \"리센츠 주민끼리만\" 원베일리·헬리오 이어 잠실도 '입주민 결정...",
-                                    "link": "https://realty.chosun.com/site/data/html_dir/2026/07/13/2026071300690.html",
-                                    "date": "2026-07-13 09:12"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "name": "반포 원베일리",
-                                    "category": "신축",
-                                    "title": "[단독] \"리센츠 주민끼리만\" 원베일리·헬리오 이어 잠실도 '입주민 결정...",
-                                    "link": "https://realty.chosun.com/site/data/html_dir/2026/07/13/2026071300690.html",
-                                    "date": "2026-07-13 09:12"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "name": "반포 아크로리버파크",
-                                    "category": "구축대단지",
-                                    "title": "대치미도, 정비·설계 합동설명회 성료… 협력업체 선정 임박",
-                                    "link": "https://www.arunews.com/news/articleView.html?idxno=64861",
-                                    "date": "2026-07-13 17:22"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "반포동",
-                                    "name": "반포자이",
-                                    "category": "구축대단지",
-                                    "title": "[박용준의 어부바] 세제 개편 윤곽…'때려잡기'인가, '정상화'인가",
-                                    "link": "https://www.ajunews.com/view/20260713174004259",
-                                    "date": "2026-07-13 17:46"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "한남3구역(디에이치한남)",
-                                    "category": "재개발",
-                                    "title": "정비사업 최초 ‘4개월 반’ 단축 목표… 한남3구역, 인허가 이정표 세...",
-                                    "link": "https://www.dnews.co.kr/uhtml/view.jsp?idxno=202607131346133160930",
-                                    "date": "2026-07-13 17:42"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "한남3구역(디에이치한남)",
-                                    "category": "재개발",
-                                    "title": "[현장] 베일 벗은 현대건설 ‘디에이치 방배’…“공간 넘어 문화까지”",
-                                    "link": "https://n.news.naver.com/mnews/article/119/0003110341?sid=101",
-                                    "date": "2026-07-11 10:01"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "한남3구역(디에이치한남)",
-                                    "category": "재개발",
-                                    "title": "방배 하이엔드 대단지···현대건설 '디에이치 방배' 가보니[르포]",
-                                    "link": "https://www.newsway.co.kr/news/view?ud=2026071015232271437",
-                                    "date": "2026-07-11 10:00"
-                        },
-                        {
-                                    "gu": "성동구",
-                                    "dong": "성수동",
-                                    "name": "아크로서울포레스트",
-                                    "category": "신축",
-                                    "title": "증시 변동성에 슈퍼리치들 움직인다…부의 상징 '하이엔드' 실물자산으...",
-                                    "link": "https://n.news.naver.com/mnews/article/014/0005547285?sid=101",
-                                    "date": "2026-07-13 11:38"
-                        },
-                        {
-                                    "gu": "성동구",
-                                    "dong": "성수동",
-                                    "name": "아크로서울포레스트",
-                                    "category": "신축",
-                                    "title": "성수부터 잠실·여의도·목동까지…서울 재건축 ‘빅매치’",
-                                    "link": "https://n.news.naver.com/mnews/article/050/0000108472?sid=101",
-                                    "date": "2026-07-13 10:57"
-                        },
-                        {
-                                    "gu": "성동구",
-                                    "dong": "성수동",
-                                    "name": "아크로서울포레스트",
-                                    "category": "신축",
-                                    "title": "100억 넘는 초고가 아파트 '현금으로 척척'",
-                                    "link": "https://n.news.naver.com/mnews/article/014/0005546981?sid=101",
-                                    "date": "2026-07-12 18:00"
-                        },
-                        {
-                                    "gu": "성동구",
-                                    "dong": "성수동",
-                                    "name": "성수전략정비구역 1지구",
-                                    "category": "재개발",
-                                    "title": "LG전자 “GS건설과 차세대 AI홈 공동개발”…‘집 짓기’ 나선 가전업체",
-                                    "link": "https://n.news.naver.com/mnews/article/032/0003457807?sid=105",
-                                    "date": "2026-07-13 16:47"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "한남더힐",
-                                    "category": "구축대단지",
-                                    "title": "[EBN 데이터센터] 전세 61억원 한남더힐 최고가…강남3구·신축 대단지 ...",
-                                    "link": "https://www.ebn.co.kr/news/articleView.html?idxno=1716061",
-                                    "date": "2026-07-13 09:32"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "한남더힐",
-                                    "category": "구축대단지",
-                                    "title": "찐 부자는 ‘홈’에서 행복하게, 졸부는 ‘하우스’ 살며 스스로 고문하...",
-                                    "link": "https://n.news.naver.com/mnews/article/023/0003986830?sid=101",
-                                    "date": "2026-07-10 05:31"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "한남더힐",
-                                    "category": "구축대단지",
-                                    "title": "\"‘김부장’ 소지섭 49억 벌었네\"…110억 한남동 빌라는 어디[누구집]",
-                                    "link": "https://n.news.naver.com/mnews/article/018/0006328208?sid=101",
-                                    "date": "2026-07-12 08:01"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "나인원한남",
-                                    "category": "신축",
-                                    "title": "거래 줄었지만 신고가는 계속…정부, 초고가 1주택 정조준",
-                                    "link": "https://n.news.naver.com/mnews/article/003/0014063548?sid=101",
-                                    "date": "2026-07-13 14:56"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "나인원한남",
-                                    "category": "신축",
-                                    "title": "100억 넘는 초고가 아파트 '현금으로 척척'",
-                                    "link": "https://n.news.naver.com/mnews/article/014/0005546981?sid=101",
-                                    "date": "2026-07-12 18:00"
-                        },
-                        {
-                                    "gu": "용산구",
-                                    "dong": "한남동",
-                                    "name": "나인원한남",
-                                    "category": "신축",
-                                    "title": "비거주 똘똘한 한채 稅폭탄 우려...얼마나?",
-                                    "link": "https://n.news.naver.com/mnews/article/374/0000521163?sid=101",
-                                    "date": "2026-07-12 11:08"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "개포동",
-                                    "name": "개포동 디에이치 퍼스티어 아이파크",
-                                    "category": "신축",
-                                    "title": "[AI로 본 부동산] \"호텔식 조식이라더니\"…신축 아파트 식사 서비스의 ...",
-                                    "link": "https://www.newspim.com/news/view/20260710001092",
-                                    "date": "2026-07-11 06:00"
-                        },
-                        {
-                                    "gu": "영등포구",
-                                    "dong": "여의도동",
-                                    "name": "여의도 시범아파트",
-                                    "category": "재건축",
-                                    "title": "성수부터 잠실·여의도·목동까지…서울 재건축 ‘빅매치’",
-                                    "link": "https://n.news.naver.com/mnews/article/050/0000108472?sid=101",
-                                    "date": "2026-07-13 10:57"
-                        },
-                        {
-                                    "gu": "영등포구",
-                                    "dong": "여의도동",
-                                    "name": "여의도 시범아파트",
-                                    "category": "재건축",
-                                    "title": "하반기에도 뜨거운 재개발·재건축…시공사 선정 ‘봇물’",
-                                    "link": "https://n.news.naver.com/mnews/article/119/0003110578?sid=101",
-                                    "date": "2026-07-13 06:49"
-                        },
-                        {
-                                    "gu": "영등포구",
-                                    "dong": "여의도동",
-                                    "name": "여의도 시범아파트",
-                                    "category": "재건축",
-                                    "title": "[이슈] 삼성물산, '1.8조' 성수3지구 '무혈입성' 하나...2차 설명회에도...",
-                                    "link": "http://www.paxetv.com/news/articleView.html?idxno=277028",
-                                    "date": "2026-07-13 16:24"
-                        },
-                        {
-                                    "gu": "양천구",
-                                    "dong": "목동",
-                                    "name": "목동 신시가지 7단지",
-                                    "category": "재건축",
-                                    "title": "목동 재건축 속도전에 건설사도 '총출동'…30조 수주전 막 올랐다",
-                                    "link": "https://www.thepublic.kr/news/articleView.html?idxno=311006",
-                                    "date": "2026-07-13 11:46"
-                        },
-                        {
-                                    "gu": "양천구",
-                                    "dong": "목동",
-                                    "name": "목동 신시가지 7단지",
-                                    "category": "재건축",
-                                    "title": "'속도'가 재건축 갈랐다… 서울시, 정비사업 '등급 관리' 강화",
-                                    "link": "http://www.the-biz.co.kr/news/articleView.html?idxno=724199",
-                                    "date": "2026-07-10 14:24"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "오금동",
-                                    "name": "오금 현대",
-                                    "category": "구축대단지",
-                                    "title": "압구정·성수 다음은 여기?···'1.5兆 오금현대' 수주전 예열",
-                                    "link": "https://www.sisajournal-e.com/news/articleView.html?idxno=422400",
-                                    "date": "2026-07-13 16:28"
-                        },
-                        {
-                                    "gu": "송파구",
-                                    "dong": "오금동",
-                                    "name": "오금 현대",
-                                    "category": "구축대단지",
-                                    "title": "포스코이앤씨, 악재 속 신용등급 방어 성공…\"재무 단단함 증명\"",
-                                    "link": "https://www.mediapen.com/news/view/1109546",
-                                    "date": "2026-07-11 09:44"
-                        },
-                        {
-                                    "gu": "강동구",
-                                    "dong": "고덕동",
-                                    "name": "고덕 그라시움",
-                                    "category": "신축",
-                                    "title": "성동구 '행당한진타운' 35평, 5억 떨어진 15.5억원에 거래 [일일 하락가...",
-                                    "link": "https://www.fntimes.com/html/view.php?ud=202607130843589408048b718333_18",
-                                    "date": "2026-07-13 08:54"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "name": "압구정 3구역",
-                                    "category": "재건축",
-                                    "title": "\"붙어봐야 힘만 뺀다\"…현대건설·삼성물산 '양강 체제' 더 굳어진다",
-                                    "link": "https://www.asiatoday.co.kr/kn/view.php?key=20260713010004676",
-                                    "date": "2026-07-13 15:00"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "name": "압구정 3구역",
-                                    "category": "재건축",
-                                    "title": "주성시엠시 김범석 대표이사 \"서울 수도권 핵심 사업장 파트너…최고 재...",
-                                    "link": "https://www.housingherald.co.kr/news/articleView.html?idxno=61822",
-                                    "date": "2026-07-13 13:30"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "name": "압구정 3구역",
-                                    "category": "재건축",
-                                    "title": "상반기 수주전 특징은 | 상반기 수주액 29조원… 현대·GS·삼성이 주도",
-                                    "link": "https://www.arunews.com/news/articleView.html?idxno=64780",
-                                    "date": "2026-07-13 10:10"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "name": "압구정 2구역",
-                                    "category": "재건축",
-                                    "title": "성수부터 잠실·여의도·목동까지…서울 재건축 ‘빅매치’",
-                                    "link": "https://n.news.naver.com/mnews/article/050/0000108472?sid=101",
-                                    "date": "2026-07-13 10:57"
-                        },
-                        {
-                                    "gu": "강남구",
-                                    "dong": "압구정동",
-                                    "name": "압구정 2구역",
-                                    "category": "재건축",
-                                    "title": "[디에이치 영토 확장] 압구정 넘어 서빙고로…현대건설, 신동아 정조준",
-                                    "link": "https://news.dealsitetv.com/articles/173153",
-                                    "date": "2026-07-13 13:56"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "방배동",
-                                    "name": "방배5구역(디에이치방배)",
-                                    "category": "재건축",
-                                    "title": "340m 석가산·왕궁 고목까지 품은 '디에이치 방배'",
-                                    "link": "https://n.news.naver.com/mnews/article/015/0005309397?sid=101",
-                                    "date": "2026-07-13 17:16"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "방배동",
-                                    "name": "방배5구역(디에이치방배)",
-                                    "category": "재건축",
-                                    "title": "아이브 안유진 당첨설 '디에이치 방배'…40억 국평, 18억 시세차익[스타...",
-                                    "link": "https://n.news.naver.com/mnews/article/050/0000108476?sid=101",
-                                    "date": "2026-07-13 11:32"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "방배동",
-                                    "name": "방배5구역(디에이치방배)",
-                                    "category": "재건축",
-                                    "title": "‘H컬처클럽’ 첫 적용…왕실 정원 콘셉트 조경도[디에이치 방배 9월 입...",
-                                    "link": "https://n.news.naver.com/mnews/article/011/0004640712?sid=101",
-                                    "date": "2026-07-12 17:46"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "방배동",
-                                    "name": "방배 13구역",
-                                    "category": "재건축",
-                                    "title": "[르포]방배동 언덕 위 거대한 단지, 'H' 우뚝",
-                                    "link": "https://n.news.naver.com/mnews/article/648/0000048815?sid=101",
-                                    "date": "2026-07-11 10:10"
-                        },
-                        {
-                                    "gu": "서초구",
-                                    "dong": "방배동",
-                                    "name": "방배15구역",
-                                    "category": "재건축",
-                                    "title": "\"반포 집값 따라잡나\" 국평 36억 신고가, 사전점검 전부터 불붙은 이곳",
-                                    "link": "https://realty.chosun.com/site/data/html_dir/2026/07/09/2026070902334.html",
-                                    "date": "2026-07-11 06:02"
-                        },
-                        {
-                                    "gu": "마포구",
-                                    "dong": "성산동",
-                                    "name": "마포 성산시영",
-                                    "category": "재건축",
-                                    "title": "‘조 단위 대어’ 목동ㆍ성수ㆍ마포도 시동",
-                                    "link": "https://www.dnews.co.kr/uhtml/view.jsp?idxno=202607101244500590700",
-                                    "date": "2026-07-13 05:20"
+                                    "gu": "송파구", "dong": "잠실동", "name": "잠실주공5단지", "category": "재건축",
+                                    "title": "잠실주공5단지 재건축 정비계획 변경안 서울시 심의 통과",
+                                    "date": "2026-07-03 09:00",
+                                    "link": "https://search.naver.com/search.naver?query=%EC%9E%A0%EC%8B%A4%EC%A3%BC%EA%B3%B55%EB%8B%A8%EC%A7%80+%EC%9E%AC%EA%B1%B1%EC%B6%95"
                         }
             ],
-            "market_wide_news": [
-                        {
-                                    "title": "오세훈 내일 국무회의 참석…대통령에게 부동산 정책 의견 낸다",
-                                    "link": "https://n.news.naver.com/mnews/article/055/0001372114?sid=100",
-                                    "date": "2026-07-13 19:15",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "오세훈 내일 국무회의 참석…대통령에게 부동산 정책 의견 낸다",
-                                    "link": "https://n.news.naver.com/mnews/article/001/0016192172?sid=101",
-                                    "date": "2026-07-13 18:52",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "백화점만으론 안 된다?…백화점 오너들, 부동산 개발 러시",
-                                    "link": "https://n.news.naver.com/mnews/article/374/0000521472?sid=101",
-                                    "date": "2026-07-13 18:28",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "“규제나 세금으로는 해결 못 해”…부동산 민심을 듣다",
-                                    "link": "https://n.news.naver.com/mnews/article/215/0001258576?sid=101",
-                                    "date": "2026-07-13 17:30",
-                                    "source": "네이버뉴스"
-                        },
-                        {
-                                    "title": "밴쿠버 부동산 시장 리포트 2026년 6월 | 주택 거래 3개월 연속 증가…시...",
-                                    "link": "https://www.koreaittimes.com/news/articleView.html?idxno=155139",
-                                    "date": "2026-07-12 11:54",
-                                    "source": "네이버뉴스"
-                        }
-            ]
+            "market_wide_news": []
 };
         // --- SEOUL_ESTATE_DATA_END ---
 
@@ -1148,7 +369,7 @@
             const guTbody = document.getElementById('gu-ranking-tbody');
             guTbody.innerHTML = '';
             const gr = marketData.gu_rankings || {};
-            const pctColor = (s) => (s || '').startsWith('-') ? 'text-blue-500' : (s === '-' ? 'text-[#6b5f48]' : 'text-red-500');
+            const pctColor = (s) => (s || '').startsWith('-') ? 'text-blue-500' : ((s === '-' || s === '표본부족') ? 'text-[#6b5f48]' : 'text-red-500');
             const renderGuRow = (r, label) => `
                 <tr class="hover:bg-[#efe4cd]/20">
                     <td class="py-2.5 px-3 text-[#233a54] font-bold">${r.gu} ${label ? `<span class="text-[9px] text-[#8a7c60] font-normal">${label}</span>` : ''}</td>
