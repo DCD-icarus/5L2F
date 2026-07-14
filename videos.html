@@ -20,6 +20,11 @@
         .video-frame { aspect-ratio: 16 / 9; background: #0f172a; }
             body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
     </style>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
 </head>
 <body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
 
@@ -62,42 +67,13 @@
 
     <script>
         // ---------------------------------------------------------------
-        // 매주 아래 배열 내용만 교체하면 됩니다 (신규 항목은 맨 위에 추가 권장).
-        // youtubeId: 영상 URL의 watch?v= 뒤에 오는 11자리 코드
-        //   예) https://www.youtube.com/watch?v=dQw4w9WgXcQ -> "dQw4w9WgXcQ"
-        // weekLabel: 헤더 우측에 표시될 주차 텍스트 (예: "2026년 7월 3주차")
-        // ---------------------------------------------------------------
-        const WEEK_LABEL = "[예시] 2026년 7월 3주차";
-
-        const VIDEOS_DATA = [
-            {
-                title: "[예시] 영상 제목을 입력하세요",
-                channel: "채널명",
-                youtubeId: "",
-                description: "이 영상을 추천하는 이유를 1~2문장으로 적어주세요. youtubeId를 비워두면 재생 영역 대신 안내 문구가 표시됩니다.",
-                dateAdded: "2026-07-11",
-            },
-            {
-                title: "[예시] 두 번째 추천 영상",
-                channel: "채널명",
-                youtubeId: "",
-                description: "실제 영상으로 교체 전까지는 예시 항목으로 표시됩니다.",
-                dateAdded: "2026-07-11",
-            },
-            {
-                title: "[예시] 세 번째 추천 영상",
-                channel: "채널명",
-                youtubeId: "",
-                description: "매주 3~5개씩 이 배열만 갱신하면 됩니다.",
-                dateAdded: "2026-07-11",
-            },
-        ];
-
-        function render() {
-            document.getElementById('week-label').innerText = WEEK_LABEL;
+        function renderVideos(items) {
+            if (items.length > 0) {
+                document.getElementById('week-label').innerText = `최신 등록: ${items[0].dateAdded || ''}`;
+            }
             const grid = document.getElementById('video-grid');
             grid.innerHTML = '';
-            VIDEOS_DATA.forEach(v => {
+            items.forEach(v => {
                 const playerHtml = v.youtubeId
                     ? `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${v.youtubeId}" title="${v.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
                     : `<div class="w-full h-full flex items-center justify-center"><i class="fa-brands fa-youtube text-4xl text-[#5c503c]"></i></div>`;
@@ -115,6 +91,26 @@
                     </div>
                 `;
             });
+            if (items.length === 0) {
+                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">등록된 영상이 없습니다.</p>';
+            }
+        }
+
+        async function render() {
+            const grid = document.getElementById('video-grid');
+            if (!firebaseConfig || firebaseConfig.apiKey === "REPLACE_ME") {
+                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">Firebase 설정이 아직 안 되어 있습니다 (firebase-config.js를 확인해주세요).</p>';
+                return;
+            }
+            grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">불러오는 중...</p>';
+            try {
+                const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
+                const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderVideos(items);
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">영상 목록을 불러오지 못했습니다.</p>';
+            }
         }
 
         window.onload = render;
