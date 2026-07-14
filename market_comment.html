@@ -20,6 +20,11 @@
         .full-body { display: none; }
         .full-body.open { display: block; }
     </style>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
 </head>
 <body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
 
@@ -60,56 +65,6 @@
     </footer>
 
     <script>
-        // ---------------------------------------------------------------
-        // 아래 배열에 코멘트를 추가하면 됩니다 (신규 항목은 맨 위에 추가 권장).
-        // datetime: 올린 시각까지 표기 (예: "2026-07-12 09:40") - 비정기 게시라 시각까지 보여줍니다.
-        // summary: 목록에 항상 보이는 요약 (1~2문장 권장)
-        // body: '전문 보기' 클릭 시에만 펼쳐지는 전체 내용
-        // category: "국내" | "해외" | "부동산" | "기타" 등 자유롭게
-        // ---------------------------------------------------------------
-        const COMMENTS_DATA = [
-            {
-                datetime: "2026-07-12 21:00",
-                category: "부동산",
-                title: "주식시장 활황 속에서도 서울·수도권 핵심지 내 집 마련이 시급한 이유",
-                summary: "삼성전자와 SK하이닉스의 사상 최대 실적이 견인할 2026~2027년의 유례없는 유동성 장세는 결국 서울 및 수도권 핵심 입지의 아파트 시장으로 유입될 것입니다.",
-                body: `삼성전자와 SK하이닉스의 사상 최대 실적이 견인할 2026~2027년의 유례없는 유동성 장세는 결국 서울 및 수도권 핵심 입지의 아파트 시장으로 유입될 것입니다. 이것이 5L2F가 현 시점을 바라보는 핵심 관점입니다.
-
-1. 반도체 양사의 역대급 실적과 '3대 세수'의 폭발적 증가
-
-삼성전자는 지난 2분기 글로벌 1위 실적을 기록한 데 이어, 2027년 연간 기준 글로벌 1위 수성이 유력시되고 있습니다. SK하이닉스 역시 내년 영업이익 기준 글로벌 3~4위권 진입이 전망됩니다. 대한민국에 영업이익 글로벌 Top 5 이내의 기업이 동시에 두 개나 존재하는, 전례 없는 새로운 역사가 열리고 있는 것입니다.
-우리가 주목해야 할 점은 이 거대한 변화가 사회 전반에 미칠 파급력입니다. 단순히 주식시장의 호재를 넘어, 내년과 내후년 공급될 천문학적 규모의 성과급을 고려해야 합니다. (삼성전자 메모리사업부 약 7만 명, SK하이닉스 약 4만 명 규모)
-
-이뿐만이 아닙니다. 막대한 성과급에 따른 소득세 증가는 물론, 전체 규모의 10%가 지방세로 귀속되는 차원이 다른 법인세, 그리고 소비 급증에 따른 부가가치세 폭증까지 이어질 것입니다. 근로소득세, 법인세, 부가가치세라는 대한민국의 3대 세수가 동시에 폭발하는 국면을 맞이하게 됩니다.
-
-2. 전대미문의 유동성 살포와 화폐가치 하락
-
-현재 진보 정당이 집권하고 있는 정치적 지형을 감안할 때, 정부로 유입된 막대한 세수는 복지와 재정 지출을 통해 사회 전반으로 빠르게 재분배될 가능성이 높습니다.
-
-많은 전문가들이 유동성 확대로 인한 현금 가치 하락을 경고해 왔지만, 향후 2년간 우리가 마주할 유동성의 규모는 과거 그 어떤 시기에도 경험해보지 못한 '전대미문의 수준'이 될 것입니다. 시중에 현금이 그야말로 '살포'되는 국면이 전개되는 셈입니다.
-
-3. 부동산: 인플레이션을 방어할 최후의 보루
-
-이미 발 빠른 투자자들은 수도권 동남권(성남, 화성 동탄, 용인 수지 등)의 핵심 입지를 선점하였고, 이는 가파른 가격 상승세로 증명되고 있습니다. 하지만 내년부터 본격화될 유동성의 파급력을 감안한다면, 지금의 상승세는 시작에 불과하다는 것이 5L2F의 판단입니다.
-
-실물 자산인 부동산은 인플레이션을 방어하는 가장 강력한 피난처입니다. 그중에서도 실거주가 가능한 '아파트'는 자산 가치 보존과 주거 안정성을 동시에 확보할 수 있는 최후의 보루입니다.
-
-4. 투자 전략 및 제언: 우선순위에 따른 선점
-
-그렇다면 지금 우리는 어떤 선택을 해야 할까요?
-
-핵심 타겟 입지 요건
-- 서울 및 수도권(가급적 동남권 권장)
-- 역세권 혹은 역세권이 될 단지
-- 브랜드 대단지 아파트
-- 신축/준신축 아파트
-- 우수한 교육 환경 겸비
-
-물론 위 조건을 모두 충족하는 단지가 가장 이상적이겠지만, 본인의 자금 현황과 우선순위에 부합하는 미래 유망 단지를 선제적으로 확보하는 것이 무엇보다 중요합니다. 거대한 유동성의 파도가 밀려오기 전, 지금 내리는 선제의 선택이 몇 년 후 자산 격차를 가르는 결정적 차이를 만들 것입니다.`,
-                tags: ["반도체", "유동성", "수도권 부동산"],
-            },
-        ];
-
         const CATEGORY_COLOR = {
             "국내": "bg-rose-500/10 text-rose-500 border-rose-500/20",
             "해외": "bg-[#1f6d68]/10 text-[#1f6d68] border-[#1f6d68]/20",
@@ -124,10 +79,10 @@
             btn.innerText = el.classList.contains('open') ? '접기' : '전문 보기';
         }
 
-        function render() {
+        function renderComments(items) {
             const list = document.getElementById('comment-list');
             list.innerHTML = '';
-            COMMENTS_DATA.forEach((c, i) => {
+            items.forEach((c, i) => {
                 const id = `body-${i}`;
                 const catStyle = CATEGORY_COLOR[c.category] || CATEGORY_COLOR["기타"];
                 const tagsHtml = (c.tags || []).map(t =>
@@ -151,8 +106,25 @@
                     </div>
                 `;
             });
-            if (COMMENTS_DATA.length === 0) {
+            if (items.length === 0) {
                 list.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10">등록된 코멘트가 없습니다.</p>';
+            }
+        }
+
+        async function render() {
+            const list = document.getElementById('comment-list');
+            if (!firebaseConfig || firebaseConfig.apiKey === "REPLACE_ME") {
+                list.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10">Firebase 설정이 아직 안 되어 있습니다 (firebase-config.js를 확인해주세요).</p>';
+                return;
+            }
+            list.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10">불러오는 중...</p>';
+            try {
+                const snap = await db.collection('comments').orderBy('datetime', 'desc').get();
+                const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderComments(items);
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10">코멘트를 불러오지 못했습니다.</p>';
             }
         }
 
