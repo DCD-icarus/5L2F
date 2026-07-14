@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 · 5L2F</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .input {
+            width: 100%; padding: 8px 12px; border-radius: 8px;
+            border: 1px solid #d8c69c; background: #f7f1e3; color: #1c2f45; font-size: 13px;
+        }
+        .input:focus { outline: 2px solid #1f6d68; }
+        .tab-btn { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; color: #5f5340; cursor: pointer; }
+        .tab-btn.active { background: #1f6d68; color: white; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+    </style>
+</head>
+<body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen">
+
+    <header class="border-b border-[#d8c69c]/80 bg-[#efe4cd]/50 py-4">
+        <div class="max-w-4xl mx-auto px-4 flex items-center justify-between">
+            <h1 class="font-bold text-lg">5L2F 관리자</h1>
+            <div id="auth-status" class="text-xs text-[#6b5f48]"></div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-10">
+
+        <!-- 로그인 폼 -->
+        <div id="login-box" class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-8 max-w-sm mx-auto">
+            <h2 class="font-bold text-base mb-4 text-center">관리자 로그인</h2>
+            <input id="login-email" type="email" placeholder="이메일" class="input mb-3">
+            <input id="login-password" type="password" placeholder="비밀번호" class="input mb-4">
+            <button onclick="doLogin()" class="w-full bg-[#1e3a5f] hover:bg-[#153050] text-white font-bold text-sm py-2.5 rounded-lg">로그인</button>
+            <p id="login-error" class="text-xs text-rose-500 mt-3 text-center"></p>
+        </div>
+
+        <!-- 관리자 화면 (로그인 후 표시) -->
+        <div id="admin-panel" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex gap-2">
+                    <button class="tab-btn active" data-tab="comments" onclick="switchAdminTab(this)">5L2F 생각</button>
+                    <button class="tab-btn" data-tab="books" onclick="switchAdminTab(this)">Books</button>
+                    <button class="tab-btn" data-tab="videos" onclick="switchAdminTab(this)">Video</button>
+                </div>
+                <button onclick="doLogout()" class="text-xs text-rose-500 font-bold hover:underline">로그아웃</button>
+            </div>
+
+            <!-- 5L2F 생각 작성 -->
+            <div id="panel-comments" class="panel active">
+                <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 mb-6">
+                    <h3 class="font-bold text-sm mb-4">새 글 작성</h3>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <select id="c-category" class="input">
+                            <option value="국내">국내</option>
+                            <option value="해외">해외</option>
+                            <option value="부동산" selected>부동산</option>
+                            <option value="기타">기타</option>
+                        </select>
+                        <input id="c-tags" class="input" placeholder="태그 (콤마로 구분)">
+                    </div>
+                    <input id="c-title" class="input mb-3" placeholder="제목">
+                    <textarea id="c-summary" class="input mb-3" rows="2" placeholder="요약 (목록에 항상 보임)"></textarea>
+                    <textarea id="c-body" class="input mb-4" rows="10" placeholder="전문 (전문 보기 클릭 시 표시)"></textarea>
+                    <button onclick="submitComment()" class="bg-[#1f6d68] hover:bg-[#175551] text-white font-bold text-sm px-5 py-2.5 rounded-lg">게시하기</button>
+                    <span id="c-status" class="text-xs ml-3"></span>
+                </div>
+                <div id="comments-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Books 작성 -->
+            <div id="panel-books" class="panel">
+                <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 mb-6">
+                    <h3 class="font-bold text-sm mb-4">새 책 추가</h3>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input id="b-title" class="input" placeholder="제목">
+                        <input id="b-author" class="input" placeholder="저자">
+                        <input id="b-publisher" class="input" placeholder="출판사 · 출간년도">
+                        <input id="b-cover" class="input" placeholder="표지 이미지 URL (선택)">
+                        <select id="b-category" class="input">
+                            <option value="주식">주식</option>
+                            <option value="부동산">부동산</option>
+                            <option value="경제일반">경제일반</option>
+                        </select>
+                        <select id="b-level" class="input">
+                            <option value="입문">입문</option>
+                            <option value="중급">중급</option>
+                            <option value="고급">고급</option>
+                        </select>
+                        <input id="b-tags" class="input" placeholder="태그 (콤마로 구분)">
+                        <input id="b-buylink" class="input" placeholder="구매 링크">
+                    </div>
+                    <textarea id="b-description" class="input mb-4" rows="3" placeholder="추천 이유"></textarea>
+                    <button onclick="submitBook()" class="bg-[#1f6d68] hover:bg-[#175551] text-white font-bold text-sm px-5 py-2.5 rounded-lg">추가하기</button>
+                    <span id="b-status" class="text-xs ml-3"></span>
+                </div>
+                <div id="books-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Video 작성 -->
+            <div id="panel-videos" class="panel">
+                <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-6 mb-6">
+                    <h3 class="font-bold text-sm mb-4">새 영상 추가</h3>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input id="v-title" class="input" placeholder="제목">
+                        <input id="v-channel" class="input" placeholder="채널명">
+                        <input id="v-youtube" class="input col-span-2" placeholder="유튜브 URL (전체 주소 붙여넣기)">
+                    </div>
+                    <textarea id="v-description" class="input mb-4" rows="2" placeholder="추천 이유"></textarea>
+                    <button onclick="submitVideo()" class="bg-[#1f6d68] hover:bg-[#175551] text-white font-bold text-sm px-5 py-2.5 rounded-lg">추가하기</button>
+                    <span id="v-status" class="text-xs ml-3"></span>
+                </div>
+                <div id="videos-list" class="space-y-2"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function doLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            document.getElementById('login-error').innerText = '';
+            auth.signInWithEmailAndPassword(email, password).catch(err => {
+                document.getElementById('login-error').innerText = '로그인 실패: ' + err.message;
+            });
+        }
+
+        function doLogout() {
+            auth.signOut();
+        }
+
+        auth.onAuthStateChanged(user => {
+            const statusEl = document.getElementById('auth-status');
+            if (user) {
+                document.getElementById('login-box').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                statusEl.innerText = user.email;
+                loadAllLists();
+            } else {
+                document.getElementById('login-box').classList.remove('hidden');
+                document.getElementById('admin-panel').classList.add('hidden');
+                statusEl.innerText = '';
+            }
+        });
+
+        function switchAdminTab(btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+        }
+
+        function extractYoutubeId(url) {
+            const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
+            return m ? m[1] : '';
+        }
+
+        function todayStr() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        async function submitComment() {
+            const status = document.getElementById('c-status');
+            const title = document.getElementById('c-title').value.trim();
+            const summary = document.getElementById('c-summary').value.trim();
+            const body = document.getElementById('c-body').value.trim();
+            if (!title || !summary || !body) { status.innerText = '제목/요약/전문을 모두 입력해주세요.'; return; }
+            const tags = document.getElementById('c-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+            const now = new Date();
+            const datetime = now.toISOString().slice(0, 16).replace('T', ' ');
+            try {
+                await db.collection('comments').add({
+                    datetime, title, summary, body, tags,
+                    category: document.getElementById('c-category').value,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                status.innerText = '게시 완료!';
+                ['c-title','c-summary','c-body','c-tags'].forEach(id => document.getElementById(id).value = '');
+                loadList('comments');
+            } catch (e) { status.innerText = '오류: ' + e.message; }
+        }
+
+        async function submitBook() {
+            const status = document.getElementById('b-status');
+            const title = document.getElementById('b-title').value.trim();
+            if (!title) { status.innerText = '제목을 입력해주세요.'; return; }
+            const tags = document.getElementById('b-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+            try {
+                await db.collection('books').add({
+                    title,
+                    author: document.getElementById('b-author').value.trim(),
+                    publisher: document.getElementById('b-publisher').value.trim(),
+                    cover: document.getElementById('b-cover').value.trim(),
+                    category: document.getElementById('b-category').value,
+                    level: document.getElementById('b-level').value,
+                    description: document.getElementById('b-description').value.trim(),
+                    buyLink: document.getElementById('b-buylink').value.trim() || '#',
+                    tags,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                status.innerText = '추가 완료!';
+                ['b-title','b-author','b-publisher','b-cover','b-tags','b-buylink','b-description'].forEach(id => document.getElementById(id).value = '');
+                loadList('books');
+            } catch (e) { status.innerText = '오류: ' + e.message; }
+        }
+
+        async function submitVideo() {
+            const status = document.getElementById('v-status');
+            const title = document.getElementById('v-title').value.trim();
+            const url = document.getElementById('v-youtube').value.trim();
+            const youtubeId = extractYoutubeId(url);
+            if (!title || !youtubeId) { status.innerText = '제목과 올바른 유튜브 URL을 입력해주세요.'; return; }
+            try {
+                await db.collection('videos').add({
+                    title, youtubeId,
+                    channel: document.getElementById('v-channel').value.trim(),
+                    description: document.getElementById('v-description').value.trim(),
+                    dateAdded: todayStr(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                status.innerText = '추가 완료!';
+                ['v-title','v-channel','v-youtube','v-description'].forEach(id => document.getElementById(id).value = '');
+                loadList('videos');
+            } catch (e) { status.innerText = '오류: ' + e.message; }
+        }
+
+        async function deleteItem(collection, id) {
+            if (!confirm('삭제하시겠습니까?')) return;
+            await db.collection(collection).doc(id).delete();
+            loadList(collection);
+        }
+
+        async function loadList(collection) {
+            const listEl = document.getElementById(collection + '-list');
+            listEl.innerHTML = '<p class="text-xs text-[#6b5f48]">불러오는 중...</p>';
+            const snap = await db.collection(collection).orderBy('createdAt', 'desc').get();
+            if (snap.empty) { listEl.innerHTML = '<p class="text-xs text-[#6b5f48]">등록된 항목이 없습니다.</p>'; return; }
+            listEl.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                listEl.innerHTML += `
+                    <div class="flex items-center justify-between bg-[#f7f1e3]/60 border border-[#d8c69c] rounded-lg px-4 py-2.5">
+                        <span class="text-xs font-semibold truncate">${d.title}</span>
+                        <button onclick="deleteItem('${collection}','${doc.id}')" class="text-[10px] text-rose-500 font-bold hover:underline ml-3 shrink-0">삭제</button>
+                    </div>
+                `;
+            });
+        }
+
+        function loadAllLists() {
+            loadList('comments');
+            loadList('books');
+            loadList('videos');
+        }
+    </script>
+</body>
+</html>
