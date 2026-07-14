@@ -30,6 +30,11 @@
         .filter-chip.active { background: #1f6d68; color: white; border-color: #1f6d68; }
             body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
     </style>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
 </head>
 <body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
 
@@ -97,46 +102,7 @@
         // ---------------------------------------------------------------
         // 아래 배열에 책을 추가/수정/삭제하면 됩니다. (신규 항목은 맨 위에 추가 권장)
         // category: "주식" | "부동산" | "경제일반"
-        // level: "입문" | "중급" | "고급"
-        // buyLink: 나중에 쿠팡파트너스 / 알라딘TTB / 예스24 제휴 링크로 교체하세요.
-        // cover: 표지 이미지 URL (알라딘·교보문고 상품페이지에서 이미지 주소 복사 가능)
-        //        비워두면 기본 아이콘이 표시됩니다.
-        // ---------------------------------------------------------------
-        const BOOKS_DATA = [
-            {
-                title: "[예시] 책 제목을 입력하세요",
-                author: "저자명",
-                publisher: "출판사 · 출간년도",
-                category: "주식",
-                level: "입문",
-                cover: "",
-                description: "이 책을 추천하는 이유를 2~3문장으로 적어주세요. 실제 항목으로 교체 전까지는 예시로 표시됩니다.",
-                tags: ["예시", "교체필요"],
-                buyLink: "#",
-            },
-            {
-                title: "[예시] 두 번째 추천 도서",
-                author: "저자명",
-                publisher: "출판사 · 출간년도",
-                category: "부동산",
-                level: "중급",
-                cover: "",
-                description: "직접 읽고 느낀 핵심 인사이트나 어떤 독자에게 추천하는지를 적어주면 좋습니다.",
-                tags: ["예시", "교체필요"],
-                buyLink: "#",
-            },
-            {
-                title: "[예시] 세 번째 추천 도서",
-                author: "저자명",
-                publisher: "출판사 · 출간년도",
-                category: "경제일반",
-                level: "고급",
-                cover: "",
-                description: "구매 링크(buyLink)는 나중에 제휴 링크로 바꾸면 클릭 시 바로 구매 페이지로 연결됩니다.",
-                tags: ["예시", "교체필요"],
-                buyLink: "#",
-            },
-        ];
+        let BOOKS_DATA = [];
 
         const activeFilter = { cat: '전체', lvl: '전체', q: '' };
 
@@ -212,8 +178,21 @@
             });
         }
 
-        function render() {
-            renderFiltered();
+        async function render() {
+            const grid = document.getElementById('book-grid');
+            if (!firebaseConfig || firebaseConfig.apiKey === "REPLACE_ME") {
+                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">Firebase 설정이 아직 안 되어 있습니다 (firebase-config.js를 확인해주세요).</p>';
+                return;
+            }
+            grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">불러오는 중...</p>';
+            try {
+                const snap = await db.collection('books').orderBy('createdAt', 'desc').get();
+                BOOKS_DATA = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderFiltered();
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">책 목록을 불러오지 못했습니다.</p>';
+            }
         }
 
         window.onload = render;
