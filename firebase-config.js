@@ -5,13 +5,13 @@
 // 실제 보안은 Firestore 규칙과 로그인 여부로 처리됩니다.)
 // ---------------------------------------------------------------------
 const firebaseConfig = {
-    apiKey: "REPLACE_ME",
-    authDomain: "REPLACE_ME.firebaseapp.com",
-    projectId: "REPLACE_ME",
-    storageBucket: "REPLACE_ME.appspot.com",
-    messagingSenderId: "REPLACE_ME",
-    appId: "REPLACE_ME",
-    measurementId: "REPLACE_ME"  // Analytics용 - 없어도 무방 (Auth/Firestore엔 안 쓰임)
+  apiKey: "AIzaSyC33A_BA2sAguKXSq-BH-sttfJtYJFAbSY",
+  authDomain: "l2f-e0b6e.firebaseapp.com",
+  projectId: "l2f-e0b6e",
+  storageBucket: "l2f-e0b6e.firebasestorage.app",
+  messagingSenderId: "226371905311",
+  appId: "1:226371905311:web:e384701af0969d67dbb22a",
+  measurementId: "G-NCP6T42PDM" // Analytics용 - 없어도 무방 (Auth/Firestore엔 안 쓰임)
 };
 
 firebase.initializeApp(firebaseConfig);
