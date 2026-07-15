@@ -2,10 +2,14 @@ name: Scheduled 5L2F Dashboard Factory
 
 on:
   schedule:
-    - cron: '0 7 * * 1-5'    # KST 16:00 평일 -> KOSPI + REITs 마감
-    - cron: '0 22 * * 1-5'   # KST 07:00 평일 -> 미국장 마감
-    - cron: '10 22 * * *'    # KST 07:10 매일 -> 서울 부동산 실거래가
-    - cron: '20 22 * * *'    # KST 07:20 매일 -> 수도권(경기·인천) 부동산 실거래가
+    # KST 16:00 평일(월~금) -> 국내증시(KOSPI) + 리츠
+    # UTC 07:00에 KST로는 같은 날 16:00이 되므로(자정을 안 넘음) 요일 보정이 필요 없습니다.
+    - cron: '0 7 * * 1-5'
+    # KST 07:00 평일(월~금) -> 미국시장 + 서울부동산 + 수도권부동산 + 통합대시보드 알림 (한 번에 실행)
+    # 주의: UTC 저녁 시각은 KST로 넘어가면서 날짜가 하루 밀립니다. UTC 기준 '일~목'(0-4)에
+    # 실행해야 KST로 '월~금' 아침이 됩니다. 예전에 '1-5'(월~금)로 잘못 넣어서 실제로는
+    # KST 화~토 아침에 푸시되던 버그를 고쳤습니다.
+    - cron: '0 22 * * 0-4'
   workflow_dispatch:
     inputs:
       mode:
@@ -16,6 +20,7 @@ on:
         options:
           - all
           - kospi_reits
+          - all_morning
           - us_market
           - seoul_estate
           - gyeonggi_estate
@@ -56,9 +61,7 @@ jobs:
           else
             case "${{ github.event.schedule }}" in
               "0 7 * * 1-5")  echo "mode=kospi_reits" >> "$GITHUB_OUTPUT" ;;
-              "0 22 * * 1-5") echo "mode=us_market" >> "$GITHUB_OUTPUT" ;;
-              "10 22 * * *")  echo "mode=seoul_estate" >> "$GITHUB_OUTPUT" ;;
-              "20 22 * * *")  echo "mode=gyeonggi_estate" >> "$GITHUB_OUTPUT" ;;
+              "0 22 * * 0-4") echo "mode=all_morning" >> "$GITHUB_OUTPUT" ;;
               *)              echo "mode=all" >> "$GITHUB_OUTPUT" ;;
             esac
           fi
