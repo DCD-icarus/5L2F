@@ -662,6 +662,19 @@ KOSPI_STOCK_NAMES = [
 ]
 
 
+def data_date_label(date_str, suffix="기준"):
+    """실제 데이터의 거래일(YYYY-MM-DD)을 한글 라벨로 변환.
+    kst_date_label()과 달리 '스크립트를 실행한 시점'이 아니라 '데이터가 실제로
+    가리키는 거래일'을 그대로 반영합니다. 예를 들어 장마감 직후라 아직 오늘자
+    종가가 반영되기 전이면, 라벨도 어제 날짜로 정직하게 표시됩니다."""
+    try:
+        d = datetime.strptime(date_str, "%Y-%m-%d")
+        wd = _WEEKDAYS_KO[d.weekday()]
+        return f"{d.year}년 {d.month}월 {d.day}일 ({wd}) {suffix}"
+    except (ValueError, TypeError):
+        return kst_date_label(suffix)
+
+
 def build_kospi_data(naver_id=None, naver_secret=None):
     macro = []
     for ticker, name in KOSPI_MACRO_TICKERS:
@@ -679,6 +692,7 @@ def build_kospi_data(naver_id=None, naver_secret=None):
             "change": f"{'+' if c>=0 else ''}{c:,.2f}", "pct": fmt_pct(p),
             "low": low_fmt, "high": high_fmt, "history": d.get("history") or [],
             "link": f"https://finance.yahoo.com/quote/{quote(ticker, safe='')}",
+            "_raw_date": d.get("date"),
         })
 
     etfs = []
@@ -727,9 +741,11 @@ def build_kospi_data(naver_id=None, naver_secret=None):
         ["코스피 마감 시황", "코스피 목표주가 투자의견"], naver_id, naver_secret, per_query=4, total_cap=5
     )
 
-    # market_date는 코스피 지표(macro[0])의 실제 거래일 기준
+    # market_date는 코스피 지표의 실제 거래일(raw_date) 기준 - 실행 시점이 아님
     kospi_macro = next((m for m in macro if m["name"] == "코스피"), None)
-    market_date_label = kst_date_label("장 마감") if kospi_macro else kst_date_label()
+    market_date_label = data_date_label(kospi_macro["_raw_date"], "장 마감") if kospi_macro else kst_date_label()
+    for m in macro:
+        m.pop("_raw_date", None)
 
     return {
         "market_date": market_date_label,
@@ -753,12 +769,15 @@ def run_kospi_mode(naver_id=None, naver_secret=None):
 # ---------------------------------------------------------------------------
 def build_reits_data(dart_api_key, naver_id=None, naver_secret=None):
     etfs = []
+    first_trade_date = None
     for name in REIT_ETF_NAMES:
         code = resolve_stock_code(name)
         d = yf_last_two(f"{code}.KS", want_dividend=True) if code else None
         if d is None:
             log.warning(f"REITs ETF 시세 누락(건너뜀): {name}")
             continue
+        if first_trade_date is None:
+            first_trade_date = d.get("date")
         c = d["close"] - d["prev_close"]
         p = (c / d["prev_close"] * 100) if d["prev_close"] else 0
         yld = d.get("dividend_yield")
@@ -801,7 +820,10 @@ def build_reits_data(dart_api_key, naver_id=None, naver_secret=None):
         ["상장리츠", "리츠 목표주가 투자의견", "공모인프라펀드", "사모리츠"], naver_id, naver_secret, per_query=3, total_cap=6
     )
 
-    return {"etfs": etfs, "assets": assets, "disclosures": disclosures, "news": news, "market_date": kst_date_label()}
+    return {
+        "etfs": etfs, "assets": assets, "disclosures": disclosures, "news": news,
+        "market_date": data_date_label(first_trade_date, "장 마감") if first_trade_date else kst_date_label(),
+    }
 
 
 DART_CORPCODE_CACHE_FILE = "dart_corpcode_cache.json"
@@ -1019,11 +1041,14 @@ def build_foreign_market_news(limit_per_feed=2):
 
 def build_us_market_data(naver_id=None, naver_secret=None):
     macro = []
+    us_trade_date = None
     for ticker, name in US_MACRO_TICKERS:
         d = yf_last_two(ticker, want_52w=True, want_history=True)
         if d is None:
             log.warning(f"미국 지표 조회 실패(건너뜀): {name}")
             continue
+        if us_trade_date is None:
+            us_trade_date = d.get("date")
         c = d["close"] - d["prev_close"]
         p = (c / d["prev_close"] * 100) if d["prev_close"] else 0
         is_rate = "금리" in name
@@ -1072,7 +1097,7 @@ def build_us_market_data(naver_id=None, naver_secret=None):
     foreign_news = build_foreign_market_news()
     return {
         "macro": macro, "top30": top30, "news": news, "foreign_news": foreign_news,
-        "market_date": kst_date_label("NY 마감 기준"),
+        "market_date": data_date_label(us_trade_date, "NY 마감 기준") if us_trade_date else kst_date_label("NY 마감 기준"),
     }
 
 
@@ -1159,7 +1184,8 @@ def _median(vals):
     return s[mid] if n % 2 == 1 else (s[mid - 1] + s[mid]) / 2
 
 
-MIN_SAMPLE_SIZE = 5  # 이보다 표본이 적으면 등락률을 계산하지 않고 "표본부족" 처리 (노이즈 완화를 위해 3→5로 상향)
+MIN_SAMPLE_SIZE = 8  # 이보다 표본이 적으면 등락률을 계산하지 않고 "표본부족" 처리 (노이즈 완화를 위해 5→8로 재상향)
+MAX_REASONABLE_PCT = 12.0  # 이 범위를 벗어나는 값은 표본 왜곡 가능성이 높아 "이상치"로 표시
 
 
 def build_gu_rankings(all_trades, now, group_field="gu", jan_trades=None):
@@ -1227,14 +1253,21 @@ def build_gu_rankings(all_trades, now, group_field="gu", jan_trades=None):
             "ytd_pct": ytd_pct, "ytd_n": min(tm_n, jan_n) if jan_trades else None,
         })
 
-    valid_weekly = [r for r in rows if r["weekly_pct"] is not None]
+    valid_weekly = [
+        r for r in rows
+        if r["weekly_pct"] is not None and abs(r["weekly_pct"]) <= MAX_REASONABLE_PCT
+    ]
     valid_weekly.sort(key=lambda r: r["weekly_pct"], reverse=True)
     top5 = valid_weekly[:5]
     bottom5 = valid_weekly[-5:] if len(valid_weekly) > 5 else []
     avg_weekly = sum(r["weekly_pct"] for r in valid_weekly) / len(valid_weekly) if valid_weekly else None
 
     def fmt_pct_or_na(v):
-        return f"{'+' if v >= 0 else ''}{v:.2f}%" if v is not None else "표본부족"
+        if v is None:
+            return "표본부족"
+        if abs(v) > MAX_REASONABLE_PCT:
+            return "이상치"  # 표본 왜곡으로 추정되는 극단값은 오해를 막기 위해 수치 대신 표시
+        return f"{'+' if v >= 0 else ''}{v:.2f}%"
 
     def fmt_row(r):
         return {
@@ -2189,7 +2222,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode", type=str, required=True,
-        choices=["kospi", "reits", "kospi_reits", "us_market", "seoul_estate", "gyeonggi_estate", "all"],
+        choices=["kospi", "reits", "kospi_reits", "us_market", "seoul_estate", "gyeonggi_estate", "all_morning", "all"],
         help="실행 모드. 시간 기반 자동추론(auto)은 제거됨 - 워크플로가 명시적으로 전달합니다.",
     )
     args = parser.parse_args()
@@ -2212,19 +2245,25 @@ if __name__ == "__main__":
         d = run_reits_mode(dart_key, naver_id, naver_secret)
         send_kakao_notification(kakao_token, "reits", d)
 
-    if mode_to_run in ("us_market", "all"):
+    # all_morning: 미국시장 + 서울부동산 + 수도권부동산 + 통합대시보드 알림을
+    # 한 번의 실행(cron 1건)에서 순서대로 처리합니다. 예전엔 이 4개가 07:00,
+    # 07:10, 07:20으로 따로따로 트리거되다 보니 뒤로 갈수록 요청하신
+    # "오전 7시~7시10분" 범위를 벗어났고, 서울/수도권이 각각 통합대시보드
+    # 알림을 중복으로 보내는 문제도 있었습니다. 이제 한 번에 묶어서 실행하고
+    # 통합대시보드 알림도 맨 마지막에 딱 1번만 보냅니다.
+    if mode_to_run in ("us_market", "all_morning", "all"):
         d = run_us_market_mode(naver_id, naver_secret)
         send_kakao_notification(kakao_token, "us_market", d)
 
-    if mode_to_run in ("seoul_estate", "all"):
+    if mode_to_run in ("seoul_estate", "all_morning", "all"):
         d = run_seoul_estate_mode(molit_key, naver_id, naver_secret)
         send_kakao_notification(kakao_token, "seoul_estate", d)
 
-    if mode_to_run in ("gyeonggi_estate", "all"):
+    if mode_to_run in ("gyeonggi_estate", "all_morning", "all"):
         d = run_gyeonggi_estate_mode(molit_key, naver_id, naver_secret)
         send_kakao_notification(kakao_token, "gyeonggi_estate", d)
 
-    if mode_to_run in ("seoul_estate", "gyeonggi_estate", "all"):
+    if mode_to_run in ("all_morning", "all"):
         send_hub_notification(kakao_token)
 
     log.info("실행 완료")
