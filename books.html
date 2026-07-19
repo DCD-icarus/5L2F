@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Firebase (admin에서 저장한 books 컬렉션을 읽습니다) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
         .glow-card {
@@ -28,13 +32,36 @@
         }
         .filter-chip:hover { background: rgba(216,198,156,0.3); }
         .filter-chip.active { background: #1f6d68; color: white; border-color: #1f6d68; }
-            body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+        body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+
+        /* ── 핵심 한 줄 ── */
+        .one-liner {
+            background: #efe4cd; border-radius: 10px; padding: 10px 14px;
+            font-weight: 700; font-size: 13px; color: #175551; line-height: 1.6;
+        }
+        .one-liner::before { content: "\201C "; opacity: .5; }
+        .one-liner::after  { content: " \201D"; opacity: .5; }
+
+        /* ── 서평 아코디언 ── */
+        .review-toggle {
+            color: #1f6d68; font-weight: 700; font-size: 12px; cursor: pointer;
+            background: none; border: none; padding: 4px 0; font-family: inherit;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .review-toggle .chev { transition: transform .25s ease; font-size: 9px; display: inline-block; }
+        .review-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+        .review-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease; }
+        .review-body.open { grid-template-rows: 1fr; }
+        .review-inner { overflow: hidden; }
+        .review-content { font-size: 12px; color: #5f5340; line-height: 1.8; padding-top: 6px; }
+        .review-content p { margin-bottom: 10px; }
+        .for-whom {
+            margin-top: 4px; padding: 8px 12px; border-left: 3px solid #1f6d68;
+            background: rgba(239,228,205,.5); border-radius: 0 8px 8px 0; font-size: 11.5px;
+        }
+        .for-whom strong { color: #175551; }
+        @media (prefers-reduced-motion: reduce) { .review-body, .review-toggle .chev { transition: none; } }
     </style>
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
 </head>
 <body class="bg-[#f7f1e3] text-[#1c2f45] min-h-screen flex flex-col justify-between selection:bg-[#1f6d68] selection:text-white">
 
@@ -82,9 +109,10 @@
             </div>
         </div>
 
-        <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             <!-- JS Dynamic -->
         </div>
+        <p id="loading" class="text-sm text-[#6b5f48] text-center py-10">불러오는 중...</p>
         <p id="no-results" class="text-sm text-[#6b5f48] text-center py-10 hidden">조건에 맞는 책이 없습니다.</p>
     </main>
 
@@ -95,16 +123,30 @@
                 본 콘텐츠는 정보 제공 목적의 참고자료이며, 정확성·완전성을 보장하지 않습니다. 투자 판단을 위한 권유나 자문이 아니며, 투자 결정과 결과에 대한 책임은 이용자 본인에게 있습니다.
             </p>
         </div>
-        <p class="text-center text-[11px] text-[#9c8f74]">본 페이지의 도서 구매 링크는 제휴(수수료) 링크를 포함할 수 있습니다.</p>
+        <p class="text-center text-[11px] text-[#9c8f74]">본 페이지의 도서 구매 링크는 쿠팡 파트너스 등 제휴(수수료) 링크를 포함할 수 있으며, 이에 따라 운영자가 일정액의 수수료를 제공받을 수 있습니다.</p>
     </footer>
 
     <script>
         // ---------------------------------------------------------------
-        // 아래 배열에 책을 추가/수정/삭제하면 됩니다. (신규 항목은 맨 위에 추가 권장)
-        // category: "주식" | "부동산" | "경제일반"
+        // 책 데이터는 admin.html 에서 등록/수정합니다 (Firestore 'books' 컬렉션).
+        // 이 페이지는 읽기만 합니다.
+        //  - oneliner : 핵심 한 줄 (인용구 박스)
+        //  - description : 짧은 소개 (항상 표시)
+        //  - review : 서평. 빈 줄 = 문단 구분, "추천:" 으로 시작하는 줄 = '이런 분께' 박스
+        //  - buyLink : "쿠팡링크|알라딘링크" 처럼 | 로 구분하면 버튼이 2개 생깁니다.
+        // ---------------------------------------------------------------
         let BOOKS_DATA = [];
 
         const activeFilter = { cat: '전체', lvl: '전체', q: '' };
+        const LINK_LABELS = ['쿠팡에서 구매', '알라딘에서 구매'];
+        const LINK_STYLES = [
+            'bg-[#7a4a2e] hover:bg-[#63391f]',
+            'bg-[#1f6d68] hover:bg-[#175551]'
+        ];
+
+        function escapeHtml(s) {
+            return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
 
         function setFilter(kind, value, btn) {
             activeFilter[kind] = value;
@@ -124,6 +166,18 @@
             "중급": "bg-amber-500/10 text-amber-600 border-amber-500/20",
             "고급": "bg-rose-500/10 text-rose-500 border-rose-500/20",
         };
+
+        // 서평 텍스트 → HTML (빈 줄 = 문단, "추천:" 줄 = 이런 분께 박스)
+        function reviewToHtml(raw) {
+            if (!raw || !raw.trim()) return '';
+            return raw.trim().split(/\n\s*\n/).map(p => {
+                const t = p.trim();
+                if (t.startsWith('추천:')) {
+                    return `<div class="for-whom"><strong>이런 분께</strong> — ${escapeHtml(t.replace(/^추천:\s*/, ''))}</div>`;
+                }
+                return `<p>${escapeHtml(t).replace(/\n/g, '<br>')}</p>`;
+            }).join('');
+        }
 
         function renderFiltered() {
             const filtered = BOOKS_DATA.filter(book => {
@@ -146,56 +200,80 @@
             }
             noResults.classList.add('hidden');
 
-            filtered.forEach(book => {
+            filtered.forEach((book, idx) => {
                 const coverHtml = book.cover
-                    ? `<img src="${book.cover}" alt="${book.title}" class="w-full h-full object-cover">`
+                    ? `<img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)}" class="w-full h-full object-cover" loading="lazy">`
                     : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-book-open text-3xl text-[#5c503c]"></i></div>`;
                 const tagsHtml = (book.tags || []).map(t =>
-                    `<span class="text-[10px] bg-[#1f6d68]/10 text-[#1f6d68] px-2 py-0.5 rounded border border-[#1f6d68]/20 font-bold mr-1">${t}</span>`
+                    `<span class="text-[10px] bg-[#1f6d68]/10 text-[#1f6d68] px-2 py-0.5 rounded border border-[#1f6d68]/20 font-bold mr-1">${escapeHtml(t)}</span>`
                 ).join('');
                 const levelBadge = LEVEL_BADGE[book.level] || LEVEL_BADGE["입문"];
+
+                // 구매 버튼 (| 로 구분된 링크 → 최대 2개 버튼)
+                const links = (book.buyLink || '').split('|').map(s => s.trim()).filter(u => u && u !== '#');
+                const buyHtml = links.length
+                    ? `<div class="mt-4 flex gap-2">` + links.map((u, j) =>
+                        `<a href="${escapeHtml(u)}" target="_blank" rel="noopener sponsored"
+                            class="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-bold ${LINK_STYLES[j] || LINK_STYLES[1]} text-white rounded-lg py-2.5 transition-colors">
+                            <i class="fa-solid fa-cart-shopping"></i> ${LINK_LABELS[j] || '구매하기'}
+                        </a>`).join('') + `</div>`
+                    : '';
+
+                // 서평 아코디언
+                const reviewHtml = reviewToHtml(book.review);
+                const reviewBlock = reviewHtml ? `
+                    <button class="review-toggle mt-3" aria-expanded="false" aria-controls="rv-${idx}" onclick="toggleReview(this)">
+                        서평 읽어보기 <span class="chev">▼</span>
+                    </button>
+                    <div class="review-body" id="rv-${idx}"><div class="review-inner">
+                        <div class="review-content">${reviewHtml}</div>
+                    </div></div>` : '';
+
                 grid.innerHTML += `
                     <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-5 glow-card flex flex-col">
                         <div class="flex gap-4">
                             <div class="book-cover w-20 rounded-lg overflow-hidden border border-[#d8c69c] shrink-0">${coverHtml}</div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-1.5 mb-1">
-                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold ${levelBadge}">${book.level || ''}</span>
-                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold bg-[#8a7c60]/10 text-[#6b5f48] border-[#8a7c60]/20">${book.category || ''}</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold ${levelBadge}">${escapeHtml(book.level || '')}</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold bg-[#8a7c60]/10 text-[#6b5f48] border-[#8a7c60]/20">${escapeHtml(book.category || '')}</span>
                                 </div>
-                                <h3 class="font-bold text-sm text-[#1c2f45] leading-snug">${book.title}</h3>
-                                <p class="text-xs text-[#5f5340] mt-1">${book.author}</p>
-                                <p class="text-[11px] text-[#6b5f48] mt-0.5">${book.publisher}</p>
+                                <h3 class="font-bold text-sm text-[#1c2f45] leading-snug">${escapeHtml(book.title)}</h3>
+                                <p class="text-xs text-[#5f5340] mt-1">${escapeHtml(book.author)}</p>
+                                <p class="text-[11px] text-[#6b5f48] mt-0.5">${escapeHtml(book.publisher || '')}</p>
                                 <div class="mt-2">${tagsHtml}</div>
                             </div>
                         </div>
-                        <p class="text-xs text-[#5f5340] leading-relaxed mt-4 flex-grow">${book.description}</p>
-                        <a href="${book.buyLink}" target="_blank" class="mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-bold bg-[#1e3a5f] hover:bg-[#153050] text-white rounded-lg py-2.5 transition-colors">
-                            <i class="fa-solid fa-cart-shopping"></i> 구매하러 가기
-                        </a>
+                        ${book.oneliner ? `<div class="one-liner mt-4">${escapeHtml(book.oneliner)}</div>` : ''}
+                        <p class="text-xs text-[#5f5340] leading-relaxed mt-3 flex-grow">${escapeHtml(book.description || '').replace(/\n/g,'<br>')}</p>
+                        ${reviewBlock}
+                        ${buyHtml}
                     </div>
                 `;
             });
         }
 
-        async function render() {
-            const grid = document.getElementById('book-grid');
-            if (!firebaseConfig || firebaseConfig.apiKey === "REPLACE_ME") {
-                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">Firebase 설정이 아직 안 되어 있습니다 (firebase-config.js를 확인해주세요).</p>';
-                return;
-            }
-            grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">불러오는 중...</p>';
-            try {
-                const snap = await db.collection('books').orderBy('createdAt', 'desc').get();
-                BOOKS_DATA = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderFiltered();
-            } catch (e) {
-                console.error(e);
-                grid.innerHTML = '<p class="text-sm text-[#6b5f48] text-center py-10 col-span-3">책 목록을 불러오지 못했습니다.</p>';
-            }
+        function toggleReview(btn) {
+            const body = document.getElementById(btn.getAttribute('aria-controls'));
+            const open = body.classList.toggle('open');
+            btn.setAttribute('aria-expanded', String(open));
+            btn.innerHTML = (open ? '서평 접기 ' : '서평 읽어보기 ') + '<span class="chev">▼</span>';
         }
 
-        window.onload = render;
+        async function loadBooks() {
+            const loadingEl = document.getElementById('loading');
+            try {
+                const snap = await db.collection('books').orderBy('createdAt', 'desc').get();
+                BOOKS_DATA = [];
+                snap.forEach(doc => BOOKS_DATA.push(doc.data()));
+                loadingEl.classList.add('hidden');
+                renderFiltered();
+            } catch (e) {
+                loadingEl.innerText = '목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+                console.error(e);
+            }
+        }
+        window.onload = loadBooks;
     </script>
 
     <script>
