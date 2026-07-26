@@ -36,28 +36,28 @@
 
         /* ── 핵심 한 줄 ── */
         .one-liner {
-            background: #efe4cd; border-radius: 10px; padding: 10px 14px;
-            font-weight: 700; font-size: 13px; color: #175551; line-height: 1.6;
+            background: #efe4cd; border-radius: 12px; padding: 14px 18px;
+            font-weight: 800; font-size: 17px; color: #175551; line-height: 1.6;
         }
         .one-liner::before { content: "\201C "; opacity: .5; }
         .one-liner::after  { content: " \201D"; opacity: .5; }
 
         /* ── 서평 아코디언 ── */
         .review-toggle {
-            color: #1f6d68; font-weight: 700; font-size: 12px; cursor: pointer;
+            color: #1f6d68; font-weight: 700; font-size: 14px; cursor: pointer;
             background: none; border: none; padding: 4px 0; font-family: inherit;
             display: inline-flex; align-items: center; gap: 6px;
         }
-        .review-toggle .chev { transition: transform .25s ease; font-size: 9px; display: inline-block; }
+        .review-toggle .chev { transition: transform .25s ease; font-size: 10px; display: inline-block; }
         .review-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
         .review-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease; }
         .review-body.open { grid-template-rows: 1fr; }
         .review-inner { overflow: hidden; }
-        .review-content { font-size: 12px; color: #5f5340; line-height: 1.8; padding-top: 6px; }
-        .review-content p { margin-bottom: 10px; }
+        .review-content { font-size: 15px; color: #4a4030; line-height: 1.85; padding-top: 10px; }
+        .review-content p { margin-bottom: 14px; }
         .for-whom {
-            margin-top: 4px; padding: 8px 12px; border-left: 3px solid #1f6d68;
-            background: rgba(239,228,205,.5); border-radius: 0 8px 8px 0; font-size: 11.5px;
+            margin-top: 6px; padding: 12px 16px; border-left: 4px solid #1f6d68;
+            background: rgba(239,228,205,.5); border-radius: 0 10px 10px 0; font-size: 14px;
         }
         .for-whom strong { color: #175551; }
         @media (prefers-reduced-motion: reduce) { .review-body, .review-toggle .chev { transition: none; } }
@@ -109,7 +109,7 @@
             </div>
         </div>
 
-        <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+        <div id="book-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-7 items-start">
             <!-- JS Dynamic -->
         </div>
         <p id="loading" class="text-sm text-[#6b5f48] text-center py-10">불러오는 중...</p>
@@ -203,18 +203,18 @@
             filtered.forEach((book, idx) => {
                 const coverHtml = book.cover
                     ? `<img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)}" class="w-full h-full object-cover" loading="lazy">`
-                    : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-book-open text-3xl text-[#5c503c]"></i></div>`;
+                    : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-book-open text-4xl text-[#5c503c]"></i></div>`;
                 const tagsHtml = (book.tags || []).map(t =>
-                    `<span class="text-[10px] bg-[#1f6d68]/10 text-[#1f6d68] px-2 py-0.5 rounded border border-[#1f6d68]/20 font-bold mr-1">${escapeHtml(t)}</span>`
+                    `<span class="text-xs bg-[#1f6d68]/10 text-[#1f6d68] px-2.5 py-1 rounded border border-[#1f6d68]/20 font-bold mr-1.5">${escapeHtml(t)}</span>`
                 ).join('');
                 const levelBadge = LEVEL_BADGE[book.level] || LEVEL_BADGE["입문"];
 
                 // 구매 버튼 (| 로 구분된 링크 → 최대 2개 버튼)
                 const links = (book.buyLink || '').split('|').map(s => s.trim()).filter(u => u && u !== '#');
                 const buyHtml = links.length
-                    ? `<div class="mt-4 flex gap-2">` + links.map((u, j) =>
+                    ? `<div class="mt-5 flex gap-2.5">` + links.map((u, j) =>
                         `<a href="${escapeHtml(u)}" target="_blank" rel="noopener sponsored"
-                            class="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-bold ${LINK_STYLES[j] || LINK_STYLES[1]} text-white rounded-lg py-2.5 transition-colors">
+                            class="flex-1 inline-flex items-center justify-center gap-2 text-sm font-bold ${LINK_STYLES[j] || LINK_STYLES[1]} text-white rounded-lg py-3 transition-colors">
                             <i class="fa-solid fa-cart-shopping"></i> ${LINK_LABELS[j] || '구매하기'}
                         </a>`).join('') + `</div>`
                     : '';
@@ -222,7 +222,7 @@
                 // 서평 아코디언
                 const reviewHtml = reviewToHtml(book.review);
                 const reviewBlock = reviewHtml ? `
-                    <button class="review-toggle mt-3" aria-expanded="false" aria-controls="rv-${idx}" onclick="toggleReview(this)">
+                    <button class="review-toggle mt-4" aria-expanded="false" aria-controls="rv-${idx}" onclick="toggleReview(this)">
                         서평 읽어보기 <span class="chev">▼</span>
                     </button>
                     <div class="review-body" id="rv-${idx}"><div class="review-inner">
@@ -230,22 +230,22 @@
                     </div></div>` : '';
 
                 grid.innerHTML += `
-                    <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-5 glow-card flex flex-col">
-                        <div class="flex gap-4">
-                            <div class="book-cover w-20 rounded-lg overflow-hidden border border-[#d8c69c] shrink-0">${coverHtml}</div>
+                    <div class="bg-[#efe4cd]/60 border border-[#d8c69c] rounded-2xl p-7 glow-card flex flex-col">
+                        <div class="flex gap-5">
+                            <div class="book-cover w-24 rounded-lg overflow-hidden border border-[#d8c69c] shrink-0">${coverHtml}</div>
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-1.5 mb-1">
-                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold ${levelBadge}">${escapeHtml(book.level || '')}</span>
-                                    <span class="text-[9px] px-2 py-0.5 rounded border font-bold bg-[#8a7c60]/10 text-[#6b5f48] border-[#8a7c60]/20">${escapeHtml(book.category || '')}</span>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-xs px-2.5 py-1 rounded border font-bold ${levelBadge}">${escapeHtml(book.level || '')}</span>
+                                    <span class="text-xs px-2.5 py-1 rounded border font-bold bg-[#8a7c60]/10 text-[#6b5f48] border-[#8a7c60]/20">${escapeHtml(book.category || '')}</span>
                                 </div>
-                                <h3 class="font-bold text-sm text-[#1c2f45] leading-snug">${escapeHtml(book.title)}</h3>
-                                <p class="text-xs text-[#5f5340] mt-1">${escapeHtml(book.author)}</p>
-                                <p class="text-[11px] text-[#6b5f48] mt-0.5">${escapeHtml(book.publisher || '')}</p>
-                                <div class="mt-2">${tagsHtml}</div>
+                                <h3 class="font-bold text-xl text-[#1c2f45] leading-snug">${escapeHtml(book.title)}</h3>
+                                <p class="text-sm text-[#5f5340] mt-1.5">${escapeHtml(book.author)}</p>
+                                <p class="text-xs text-[#6b5f48] mt-0.5">${escapeHtml(book.publisher || '')}</p>
+                                <div class="mt-2.5">${tagsHtml}</div>
                             </div>
                         </div>
-                        ${book.oneliner ? `<div class="one-liner mt-4">${escapeHtml(book.oneliner)}</div>` : ''}
-                        <p class="text-xs text-[#5f5340] leading-relaxed mt-3 flex-grow">${escapeHtml(book.description || '').replace(/\n/g,'<br>')}</p>
+                        ${book.oneliner ? `<div class="one-liner mt-5">${escapeHtml(book.oneliner)}</div>` : ''}
+                        <p class="text-[15px] text-[#4a4030] leading-relaxed mt-4 flex-grow">${escapeHtml(book.description || '').replace(/\n/g,'<br>')}</p>
                         ${reviewBlock}
                         ${buyHtml}
                     </div>
